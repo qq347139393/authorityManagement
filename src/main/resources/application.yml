@@ -1,0 +1,54 @@
+server:
+  port: 8088
+  servlet:
+    context-path: /authorityManagement
+spring:
+  application:
+    name: authorityManagement
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher #swagger必要配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/authority_management?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+#  redis:
+#    host: 127.0.0.1
+#    port: 6379
+#    password: 123456
+#useSSL: 'false&useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8'
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**Mapper.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-value: -1
+      logic-not-delete-value: 0
+#mybatis:
+#  mapper-locations: classpath:com/planet/module/authManage/mapper/xml/*.xml
+# shiro-redis配置
+#shiro-redis:
+#  enabled: true
+#  redis-manager:
+#    host: 127.0.0.1:6379
+#    password: 123456
+logging:
+  #level 日志等级 指定命名空间的日志输出
+  level:
+    com.planet: debug
+
+
+
+
+
+
+
+
+
+
+
+
+
+
