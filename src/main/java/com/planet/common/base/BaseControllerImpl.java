@@ -29,7 +29,7 @@ public class BaseControllerImpl<M extends IService<T>,T extends BaseEntity> impl
      * @param list
      * @return
      */
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @RequestMapping(value = "/", method = RequestMethod.POST)
     @Override
     public RspResult inserts(@RequestBody List<T> list) {
 
@@ -49,7 +49,7 @@ public class BaseControllerImpl<M extends IService<T>,T extends BaseEntity> impl
      * @param list
      * @return
      */
-    @RequestMapping(value ="",method = RequestMethod.PUT)
+    @RequestMapping(value ="/",method = RequestMethod.PUT)
     @Override
     public RspResult updatesByIds(@RequestBody List<T> list) {
         if(list==null&&list.size()<=0){
@@ -110,7 +110,7 @@ public class BaseControllerImpl<M extends IService<T>,T extends BaseEntity> impl
      * @param t
      * @return
      */
-    @RequestMapping(value = "/selects",method = RequestMethod.POST)
+    @RequestMapping(value = "/byList",method = RequestMethod.POST)
     @Override
     public RspResult selects(@RequestBody T t){
         if(t!=null){

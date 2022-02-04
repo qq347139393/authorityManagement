@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 系统异常统一处理
+ * 该异常处理类只能处理springboot容器创建并管理的bean,而不能管理自定义new的类报出的异常
  */
 @ControllerAdvice
 @Slf4j

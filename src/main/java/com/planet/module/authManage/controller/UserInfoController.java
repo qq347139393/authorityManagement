@@ -32,7 +32,7 @@ public class UserInfoController /*extends BaseControllerImpl<UserInfoService, Us
      * @param list
      * @return
      */
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @RequestMapping(value = "/", method = RequestMethod.POST)
 //    @Override
     public RspResult inserts(@RequestBody List<UserInfo> list) {
 

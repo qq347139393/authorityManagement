@@ -3,6 +3,8 @@ package com.planet.system.authByShiro.customSettings;
 import com.planet.common.constant.UtilsConstant;
 import com.planet.util.JwtUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.apache.shiro.web.util.WebUtils;
@@ -14,6 +16,7 @@ import java.io.Serializable;
 /**
  * @Description：自定义会话管理器
  */
+@Slf4j
 public class ShiroSessionManager extends DefaultWebSessionManager {
     //自定义注入的资源类型名称
     private static final String REFERENCED_SESSION_ID_SOURCE = "Stateless request";
@@ -32,7 +35,14 @@ public class ShiroSessionManager extends DefaultWebSessionManager {
             return super.getSessionId(request, response);
         }else {
             //2)如果有,走jwtToken获得sessionId的的方式
-            Claims claims = JwtUtil.decodeJwt(jwtToken);
+            Claims claims = null;
+            try {
+                claims = JwtUtil.decodeJwt(jwtToken);
+            }catch (ExpiredJwtException e){
+                e.printStackTrace();
+                log.error("jwtToken过期或错误,走默认的获取sessionId的方式");
+                return super.getSessionId(request, response);
+            }
             String id = (String) claims.get("jti");
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE,
                     REFERENCED_SESSION_ID_SOURCE);

@@ -7,17 +7,23 @@ import com.planet.common.constant.UtilsConstant;
 import com.planet.module.authManage.dao.mapper.UserInfoMapper;
 import com.planet.module.authManage.dao.redis.BaseMapper;
 import com.planet.module.authManage.entity.mysql.UserInfo;
+import com.planet.module.authManage.entity.redis.UserFunctionRs;
 import com.planet.system.authByShiro.service.UserShiroService;
 import com.planet.system.authByShiro.util.ShiroUtil;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 通过Shiro进行认证和鉴权功能的系统功能类
@@ -61,13 +67,32 @@ public class ShiroCustomRealm extends AuthorizingRealm {
 
     /**
      * 鉴权
+     * 这里是判断当前用户是否有当前请求的权限的方法
      * @param principals
      * @return
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         System.out.println("doGetAuthorizationInfo");
-        return null;
+        //1.对当前用户进行判断并授予相应权限
+        //1)获得shiro本地缓存中的当前用户对象
+        Object principal = ShiroUtil.getPrincipal();
+        //2)获取当前用户对象的userId
+        String jsonStr = JSONUtil.toJsonPrettyStr(principal);
+        JSONObject jsonObject = JSONUtil.parseObj(jsonStr);
+        Long userId = jsonObject.get("id", Long.class);
+        //3)通过userId从redis中获取此用户的权限缓存列表
+        String userFunctionsKey=UtilsConstant.REDIS_USER_ID_FOR_FUNCTIONS_PERMITS+userId;
+        UserFunctionRs userFunctionRs = (UserFunctionRs)baseMapper.getCache(userFunctionsKey);
+        if(userFunctionRs==null||userFunctionRs.getFunctionPermits()==null||userFunctionRs.getFunctionPermits().size()==0){
+            //如果当前用户没有任何权限,则直接返回错误信息
+            return null;
+        }
+        //2.授予当前用户的权限
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+        info.addStringPermissions(userFunctionRs.getFunctionPermits());
+
+        return info;
     }
 
     /**
