@@ -1,18 +1,16 @@
 package com.planet.system.authByShiro;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.planet.common.constant.ComponentConstant;
 import com.planet.common.constant.SuperConstant;
 import com.planet.common.constant.UtilsConstant;
+import com.planet.module.authManage.dao.redis.authByShiro.ShiroRedisSessionDao;
 import com.planet.module.authManage.entity.mysql.FunctionInfo;
 import com.planet.module.authManage.service.FunctionInfoService;
 import com.planet.system.authByShiro.customSettings.*;
 import com.planet.system.authByShiro.filter.JwtAuthcFilter;
 import com.planet.system.authByShiro.filter.RestAuthorizationFilter;
 import lombok.extern.log4j.Log4j2;
-import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
-import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
-import org.apache.shiro.web.filter.authz.HttpMethodPermissionFilter;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
@@ -119,22 +117,23 @@ public class ShiroConfig {
         //这里的map需要有序map
         Map<String, String> map = new LinkedHashMap<>();
         map.put("/authManage/account-module/login","anon");//登录放行
+        map.put("/authManage/account-module/veriCodeByPic","anon");//获取验证码放行
         //swagger相关的测试接口放行
-        map.put("/swagger-ui.html", "anon");
-        map.put("/webjars/**", "anon");
-        map.put("/swagger-resources", "anon");
-        map.put("/swagger-resources/**", "anon");
-        map.put("/v2/**", "anon");
-        map.put("/csrf", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/swagger-ui.html", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/webjars/**", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/swagger-resources", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/swagger-resources/**", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/v2/**", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/csrf", "anon");
 
-        List<FunctionInfo> functionInfos = functionInfoService.list(new QueryWrapper<FunctionInfo>().isNotNull("url"));
-        functionInfos.stream().forEach(functionInfo -> {//遍历需要鉴权的接口
-            map.put(functionInfo.getUrl(), "rest-perms["+functionInfo.getPermit()+"]");
-        });
+//        List<FunctionInfo> functionInfos = functionInfoService.list(new QueryWrapper<FunctionInfo>().isNotNull("url"));
+//        functionInfos.stream().forEach(functionInfo -> {//遍历需要[鉴权]的接口
+//            map.put(functionInfo.getUrl(), "rest-perms["+functionInfo.getPermit()+"]");
+//        });
 
 //        map.put("/authManage/test","anon");
-        map.put("/**","jwt-authc");//余下的请求都要进行[鉴证]
-//        map.put("/**","anon");
+//        map.put("/**","jwt-authc");//余下的请求都要进行[鉴证]
+        map.put("/**","anon");
 //        HttpMethodPermissionFilter
         return map;
     }
@@ -146,11 +145,10 @@ public class ShiroConfig {
         Map<String, Filter> map = new HashMap<String, Filter>();
 //        map.put("role-or", new RolesOrAuthorizationFilter());
 //        map.put("kicked-out", new KickedOutAuthorizationFilter(redissonClient(), redisSessionDao(), shiroSessionManager()));
-        map.put("jwt-authc", new JwtAuthcFilter());//鉴证过滤器
-        map.put("rest-perms", new RestAuthorizationFilter());//restful鉴权过滤器
+//        map.put("jwt-authc", new JwtAuthcFilter());//鉴证过滤器
+//        map.put("rest-perms", new RestAuthorizationFilter());//restful鉴权过滤器
 //        map.put("jwt-perms", new JwtPermsFilter());
 //        map.put("jwt-roles", new JwtRolesFilter());
-//        map.put("rest-perms", new HttpMethodPermissionFilter());
         return map;
     }
 

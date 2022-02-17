@@ -4,26 +4,19 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.planet.common.constant.UtilsConstant;
-import com.planet.module.authManage.dao.mapper.UserInfoMapper;
+import com.planet.module.authManage.dao.mysql.mapper.UserInfoMapper;
 import com.planet.module.authManage.dao.redis.BaseMapper;
 import com.planet.module.authManage.entity.mysql.UserInfo;
 import com.planet.module.authManage.entity.redis.UserFunctionRs;
-import com.planet.system.authByShiro.service.UserShiroService;
-import com.planet.system.authByShiro.util.ShiroUtil;
-import org.apache.shiro.SecurityUtils;
+import com.planet.module.authManage.service.authByShiro.UserShiroService;
+import com.planet.util.shiro.ShiroUtil;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 通过Shiro进行认证和鉴权功能的系统功能类
@@ -78,9 +71,7 @@ public class ShiroCustomRealm extends AuthorizingRealm {
         //1)获得shiro本地缓存中的当前用户对象
         Object principal = ShiroUtil.getPrincipal();
         //2)获取当前用户对象的userId
-        String jsonStr = JSONUtil.toJsonPrettyStr(principal);
-        JSONObject jsonObject = JSONUtil.parseObj(jsonStr);
-        Long userId = jsonObject.get("id", Long.class);
+        Long userId = JSONUtil.parseObj(principal).get("id",Long.class);
         //3)通过userId从redis中获取此用户的权限缓存列表
         String userFunctionsKey=UtilsConstant.REDIS_USER_ID_FOR_FUNCTIONS_PERMITS+userId;
         UserFunctionRs userFunctionRs = (UserFunctionRs)baseMapper.getCache(userFunctionsKey);

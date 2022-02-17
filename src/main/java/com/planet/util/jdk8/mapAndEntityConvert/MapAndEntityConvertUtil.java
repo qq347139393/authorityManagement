@@ -27,13 +27,14 @@ public class MapAndEntityConvertUtil {
      * @throws ClassNotFoundException
      * @throws InstantiationException
      */
-    public static <T,R> R entityToEntity(T t,String model,Class<R> rClass) throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException, InstantiationException, ParseException {
+    public static <T,R> R entityToEntity(T t,int model,Class<R> rClass) throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException, InstantiationException, ParseException {
         if(t==null||rClass==null){
             log.error("将一个类型的实例对象转成另一个类型的实例对象失败:入参错误");
             return null;
         }
-        if(model==null||"".equals(model)){
-            model="1";//默认值
+        if(model!=0&&model!=1){
+            log.error("模型选择只能为0或1,但这里却用了其他非法值");
+            return null;
         }
         //先将指定的实例对象转成Map对象
         Map<String,Object> map=entityToMap(t,model);
@@ -92,7 +93,7 @@ public class MapAndEntityConvertUtil {
      * @return
      * @throws IllegalAccessException
      */
-    public static <T> Map<String,Object> entityToMap(T t,String model) throws IllegalAccessException {
+    public static <T> Map<String,Object> entityToMap(T t,int model) throws IllegalAccessException {
         return entityToMap(t,model,null);
     }
 
@@ -105,13 +106,14 @@ public class MapAndEntityConvertUtil {
      * @return
      * @throws IllegalAccessException
      */
-    public static <T> Map<String,Object> entityToMap(T t,String model,Boolean flag) throws IllegalAccessException {
+    public static <T> Map<String,Object> entityToMap(T t,int model,Boolean flag) throws IllegalAccessException {
         if(t==null){
             log.error("将指定的实体对象转成Map对象失败:实体对象为null");
             return null;
         }
-        if(model==null||"".equals(model)){
-            model="0";//默认值
+        if(model!=0&&model!=1){
+            log.error("模型选择只能为0或1,但这里却用了其他非法值");
+            return null;
         }
         //获取指定实体对象对应的类的全部属性
         List<Field> fields=getFieldsByRecursion(t.getClass());
@@ -130,7 +132,7 @@ public class MapAndEntityConvertUtil {
             }
             field.setAccessible(true);
             Object value=field.get(t);
-            if(value==null&&"0".equals(model)){//忽略为null的字段
+            if(value==null&&model==0){//忽略为null的字段
                 continue;
             }
             if(flag!=null&&flag.equals(true)){//转成下划线

@@ -1,6 +1,6 @@
 package com.planet.module.authManage.service.impl;
 
-import com.planet.module.authManage.dao.mapper.FunctionInfoMapper;
+import com.planet.module.authManage.dao.mysql.mapper.FunctionInfoMapper;
 import com.planet.module.authManage.entity.mysql.FunctionInfo;
 import com.planet.module.authManage.service.FunctionInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

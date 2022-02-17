@@ -1,0 +1,9 @@
+ftp:
+  charset: GBK
+  host: 192.168.1.5
+  port: 21
+  user: ftpUser
+  password: 123456
+  language: zh
+
+

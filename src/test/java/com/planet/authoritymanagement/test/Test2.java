@@ -3,10 +3,10 @@
 //import com.planet.module.authManage.entity.mysql.FunctionInfo;
 //import com.planet.module.authManage.entity.mysql.RoleFunctionRs;
 //import com.planet.module.authManage.entity.mysql.UserInfo;
-//import com.planet.module.authManage.dao.mapper.mysql.FunctionInfoMapper;
-//import com.planet.module.authManage.dao.mapper.mysql.RoleFunctionRsMapper;
-//import com.planet.module.authManage.dao.mapper.mysql.UserInfoMapper;
-//import com.planet.module.authManage.dao.mapper.mysql.TestMapper;
+//import com.planet.module.authManage.dao.mysql.mapper.mysql.FunctionInfoMapper;
+//import com.planet.module.authManage.dao.mysql.mapper.mysql.RoleFunctionRsMapper;
+//import com.planet.module.authManage.dao.mysql.mapper.mysql.UserInfoMapper;
+//import com.planet.module.authManage.dao.mysql.mapper.mysql.TestMapper;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;

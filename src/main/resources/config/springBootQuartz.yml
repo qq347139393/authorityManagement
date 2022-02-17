@@ -1,0 +1,11 @@
+springBootQuartz:
+  systemFilesCleanJobName: systemFilesCleanJob
+  systemFilesCleanJobGroupName: systemJob
+  systemFilesCleanJobCron: */5 * * * * ?
+#虽然上面这里报错,但是这是正确的写法
+
+systemFilesCleanJob:
+  userInfoFolderPath: D:/home/authorityManagement-fileFolder/userInfo
+  ftpUserInfoFolderPath: /authorityManagement-fileFolder/userInfo
+  delFileSuffix: _del
+  replaceFileSuffix: _rep

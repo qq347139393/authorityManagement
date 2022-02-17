@@ -4,6 +4,7 @@ import com.planet.module.authManage.dao.redis.BaseMapper;
 import com.planet.util.jdk8.ObjectSerializeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBucket;
+import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

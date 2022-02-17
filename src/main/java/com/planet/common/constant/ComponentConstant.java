@@ -18,5 +18,16 @@ public class ComponentConstant {
      */
     public static final String USER_LOGIN_FREQUENCY="userLoginFrequency:";
 
+    /**
+     * Swagger2的基础路径
+     * 要与当前项目设置的静态资源路径相匹配:web.static-path-pattern: /file/**
+     */
+    public static final String SWAGGER2_DEFAULT_PATH = "/file/swagger2";
+
+    /**
+     * 设置DAO每次批量新增记录条数
+     */
+    public static final int DAO_BATCH_SIZE=200;
+
 
 }

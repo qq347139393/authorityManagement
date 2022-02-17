@@ -1,5 +1,6 @@
 package com.planet.module.authManage.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.planet.module.authManage.entity.mysql.RoleLog;
 
@@ -13,4 +14,7 @@ import com.planet.module.authManage.entity.mysql.RoleLog;
  */
 public interface RoleLogService extends IService<RoleLog> {
 
+    IPage<RoleLog> selectsByPage(RoleLog t);
+
+    void excelExport(RoleLog t);
 }

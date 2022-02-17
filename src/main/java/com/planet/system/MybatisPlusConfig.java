@@ -14,7 +14,7 @@ import java.util.Date;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan("com.planet.module.authManage.ttt.mapper")
+@MapperScan("com.planet.module.authManage.dao.mysql.mapper")
 @Slf4j
 public class MybatisPlusConfig {
 

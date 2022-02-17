@@ -1,0 +1,8 @@
+baseReadListener:
+  readBatchCount: 100
+
+baseDao:
+  serviceClassNameSuffix: ServiceImpl
+  serviceClassFullNamePrefix: com.planet.module.authManage.service.impl.
+  model: 1
+  insertsMethod: inserts

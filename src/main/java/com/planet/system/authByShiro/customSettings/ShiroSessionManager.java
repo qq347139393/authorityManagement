@@ -39,7 +39,7 @@ public class ShiroSessionManager extends DefaultWebSessionManager {
             try {
                 claims = JwtUtil.decodeJwt(jwtToken);
             }catch (ExpiredJwtException e){
-                e.printStackTrace();
+//                e.printStackTrace(); //这里为了测试需要,暂时关闭
                 log.error("jwtToken过期或错误,走默认的获取sessionId的方式");
                 return super.getSessionId(request, response);
             }

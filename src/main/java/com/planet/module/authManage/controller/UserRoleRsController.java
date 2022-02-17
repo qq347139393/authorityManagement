@@ -45,7 +45,7 @@ public class UserRoleRsController /* extends BaseControllerImpl<UserRoleRsServic
             return RspResult.FAILED;
         }
         Integer sum = userRoleRsService.setUserAndRoleRelations(authUserRoleRs);
-        return sum>=0?new RspResult(sum):RspResult.FAILED;
+        return sum!=null&&sum>=0?new RspResult(sum):RspResult.FAILED;
     }
 
 }

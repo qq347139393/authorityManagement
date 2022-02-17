@@ -35,7 +35,7 @@ public class ConfigureSys extends BaseEntity<ConfigureSys> implements Serializab
     private String code;
 
     @ApiModelProperty(value = "key值")
-    private String key;
+    private String name;
 
     @ApiModelProperty(value = "value1")
     private String value1;

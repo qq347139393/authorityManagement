@@ -6,13 +6,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.planet.common.constant.ServiceConstant;
 import com.planet.common.util.RspResult;
+import com.planet.module.authManage.entity.mysql.UserInfo;
 import com.planet.util.jdk8.mapAndEntityConvert.MapAndEntityConvertUtil;
+import com.planet.util.shiro.ShiroUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -68,9 +68,9 @@ public class BaseControllerImpl<M extends IService<T>,T extends BaseEntity> impl
      * @param ids
      * @return
      */
-    @RequestMapping(value = "/{ids}",method = RequestMethod.DELETE)
+    @RequestMapping(value = "/",method = RequestMethod.DELETE)
     @Override
-    public RspResult deletesByIds(@PathVariable List<Long> ids) {
+    public RspResult deletesByIds(@RequestParam List<Long> ids) {
         if(ids==null&&ids.size()<=0){
             return RspResult.FAILED;
         }else if(ids.size()==1){
@@ -87,9 +87,10 @@ public class BaseControllerImpl<M extends IService<T>,T extends BaseEntity> impl
      * @param ids
      * @return
      */
-    @RequestMapping(value = "/{ids}",method = RequestMethod.GET)
+    @RequestMapping(value = "/",method = RequestMethod.GET)
     @Override
-    public RspResult selectsByIds(@PathVariable List<Long> ids) {
+    public RspResult selectsByIds(@RequestParam List<Long> ids) {
+
         if(ids==null&&ids.size()<=0){
             return RspResult.FAILED;
         }else if(ids.size()==1){
@@ -114,14 +115,14 @@ public class BaseControllerImpl<M extends IService<T>,T extends BaseEntity> impl
     @Override
     public RspResult selects(@RequestBody T t){
         if(t!=null){
-            JSONObject json = JSONUtil.parseObj(t, true);
+//            JSONObject json = JSONUtil.parseObj(t, true);
 
 //            Page<T> page = new Page(t.getCurrent(), t.getSize());
             //这里先做出基本的属性遍历查询,以后要加入模糊、大小等各种可能出现的情况的判断方式
             QueryWrapper<T> tQueryWrapper = new QueryWrapper<>();
             Map<String, Object> stringObjectMap = null;
             try {
-                stringObjectMap = MapAndEntityConvertUtil.entityToMap(t, "0",true);
+                stringObjectMap = MapAndEntityConvertUtil.entityToMap(t, ServiceConstant.CLOSE,true);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
                 return RspResult.SYS_ERROR;
@@ -150,16 +151,14 @@ public class BaseControllerImpl<M extends IService<T>,T extends BaseEntity> impl
      */
     @RequestMapping(value = "/byPage",method = RequestMethod.POST)
     @Override
-    public RspResult selectByPage(@RequestBody T t) {
+    public RspResult selectsByPage(@RequestBody T t) {
         if(t!=null){
-            JSONObject json = JSONUtil.parseObj(t, true);
-
             Page<T> page = new Page(t.getCurrent(), t.getSize());
             //这里先做出基本的属性遍历查询,以后要加入模糊、大小等各种可能出现的情况的判断方式
             QueryWrapper<T> tQueryWrapper = new QueryWrapper<>();
             Map<String, Object> stringObjectMap = null;
             try {
-                stringObjectMap = MapAndEntityConvertUtil.entityToMap(t, "0",true);
+                stringObjectMap = MapAndEntityConvertUtil.entityToMap(t, ServiceConstant.CLOSE,true);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
                 return RspResult.SYS_ERROR;

@@ -75,9 +75,13 @@ public class RoleFunctionRs extends BaseTreeStructuresEntityNoField<RoleFunction
     @TableField(exist = false)
     private String functionPermit;
     @TableField(exist = false)
+    private Integer functionShiroOrder;
+    @TableField(exist = false)
     private String functionPath;
+    @TableField(exist = false)
+    private Integer functionRouteOrder;
 //    @TableField(exist = false)
-//    private Long functionParentId;
+//    private Long functionParentId;//父类已经有了parentId了
     @TableField(exist = false)
     private Integer functionLevel;
 

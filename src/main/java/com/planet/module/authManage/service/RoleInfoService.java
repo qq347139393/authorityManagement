@@ -1,7 +1,12 @@
 package com.planet.module.authManage.service;
 
+import com.planet.common.util.RspResult;
 import com.planet.module.authManage.entity.mysql.RoleInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.planet.module.authManage.entity.mysql.UserInfo;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +18,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface RoleInfoService extends IService<RoleInfo> {
 
+    Integer inserts(List<RoleInfo> list);
+
+    Integer updatesByIds(List<RoleInfo> list);
+
+    Integer deletesByIds(List<Long> ids);
+
+    RspResult excelImport(MultipartFile excelFile);
+
+    void excelExport(RoleInfo t);
 }

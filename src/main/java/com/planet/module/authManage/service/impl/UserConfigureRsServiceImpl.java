@@ -1,7 +1,7 @@
 package com.planet.module.authManage.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.planet.module.authManage.dao.mapper.UserConfigureRsMapper;
+import com.planet.module.authManage.dao.mysql.mapper.UserConfigureRsMapper;
 import com.planet.module.authManage.entity.mysql.UserConfigureRs;
 import com.planet.module.authManage.service.UserConfigureRsService;
 import org.springframework.stereotype.Service;

@@ -49,7 +49,7 @@ public interface BaseController<T> {
      * @param t
      * @return
      */
-    RspResult selectByPage(T t);
+    RspResult selectsByPage(T t);
 
 
 

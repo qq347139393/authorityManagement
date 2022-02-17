@@ -1,18 +1,22 @@
 package com.planet.module.authManage.controller;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.planet.common.util.RspResult;
 import com.planet.module.authManage.entity.mysql.UserInfo;
 import com.planet.module.authManage.service.AccountModuleService;
+import com.planet.util.springBoot.WebUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,7 +46,7 @@ public class AccountModuleController {
             return RspResult.FAILED;
         }
 
-        return accountModuleService.login(userInfo.getName(),userInfo.getPassword());
+        return accountModuleService.login(userInfo.getName(),userInfo.getPassword(),userInfo.getVerificationCode());
     }
 
     /**
@@ -57,6 +61,94 @@ public class AccountModuleController {
             subject.logout();
         }
         return RspResult.SUCCESS;
+    }
+
+    /**
+     * 获取图片验证码
+     * 在登录界面展示给用户之前调用此方法获取图片,该数据要配合sessionId存入redis缓存中
+     * @return
+     */
+    @RequestMapping(value = "/veriCodeByPic",method = RequestMethod.GET)
+    public void getVeriCodeByPic(){
+        accountModuleService.getVeriCodeByPic();
+    }
+
+    /**
+     * 获取用户自己的用户信息
+     * @return
+     */
+    @RequestMapping(value = "/",method = RequestMethod.GET)
+    public RspResult selectUserByMyId(){
+
+        return accountModuleService.selectUserByMyId();
+    }
+
+    /**
+     * 用户修改自己的用户信息
+     * 不能修改密码
+     * @param multipartFile
+     * @param usersJson
+     * @return
+     */
+    @RequestMapping(value ="/withFile",method = RequestMethod.PUT)
+//    @Override
+    public RspResult updateByMyIds(@RequestParam("portraitFile") MultipartFile multipartFile, @RequestParam("usersJson") String usersJson) {
+        if(StrUtil.isEmpty(usersJson)){
+            return RspResult.FAILED;
+        }
+        boolean b=accountModuleService.updateByMyIds(multipartFile,usersJson);
+        if(b){
+            return RspResult.SUCCESS;
+        }
+        return RspResult.FAILED;
+    }
+
+//    /**
+//     * 获取用户自己的系统定制化配置
+//     * @return
+//     */
+//    @RequestMapping(value = "/system",method = RequestMethod.GET)
+//    public RspResult selectSystemByMyId(){
+//
+//        return accountModuleService.selectSystemByMyId();
+//    }
+
+//    /**
+//     * 用户修改自己的用户信息
+//     * 不能修改密码
+//     * @param multipartFile
+//     * @param usersJson
+//     * @return
+//     */
+//    @RequestMapping(value ="/system",method = RequestMethod.PUT)
+////    @Override
+//    public RspResult updateSystemByMyId(@RequestParam("portraitFile") MultipartFile multipartFile, @RequestParam("usersJson") String usersJson) {
+//        if(StrUtil.isEmpty(usersJson)){
+//            return RspResult.FAILED;
+//        }
+//        boolean b=accountModuleService.updateSystemByMyId(multipartFile,usersJson);
+//        if(b){
+//            return RspResult.SUCCESS;
+//        }
+//        return RspResult.FAILED;
+//    }
+
+    /**
+     * 修改自己的密码
+     * @param t
+     * @return
+     */
+    @RequestMapping(value ="/password",method = RequestMethod.PUT)
+    public RspResult updateMyPassword(@RequestBody UserInfo t){
+        if(t==null||StrUtil.isEmpty(t.getPassword())||StrUtil.isEmpty(t.getNewPassword())){
+            return RspResult.FAILED;
+        }
+
+        boolean b=accountModuleService.updateMyPassword(t);
+        if(b){
+            return RspResult.SUCCESS;
+        }
+        return RspResult.FAILED;
     }
 
 }

@@ -46,7 +46,7 @@ public class RoleFunctionRsController /* extends BaseControllerImpl<AuthRoleFunc
             return RspResult.FAILED;
         }
         Integer sum = roleFunctionRsService.setRoleAndFunctionRelations(authRoleFunctionRs);
-        return sum>=0?new RspResult(sum):RspResult.FAILED;
+        return sum!=null&&sum>=0?new RspResult(sum):RspResult.FAILED;
     }
 
 }

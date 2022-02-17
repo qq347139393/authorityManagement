@@ -21,20 +21,20 @@ import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@MapperScan("com.planet.module.authManage.dao.mapper")//加上你项目的dao或service所在文件位置即可
+@MapperScan("com.planet.module.authManage.dao.mysql.mapper")//加上你项目的dao或service所在文件位置即可
 public class Redis2TemplateTest {
     @Autowired
     private AccountModuleService accountModuleService;
 
-    @Test
-    public void test1(){
-        UserInfo userInfo = accountModuleService.selectUserByUserId(1l);
-        System.out.println(userInfo);
-        UserRoleRs userRoleRs = accountModuleService.selectRolesByUserId(1l);
-        System.out.println(userRoleRs);
-        UserFunctionRs userFunctionRs = accountModuleService.selectFunctionsByUserId(1l);
-        System.out.println(userFunctionRs);
-
-    }
+//    @Test
+//    public void test1(){
+//        UserInfo userInfo = accountModuleService.selectOrUpdateRedisUserByUserId(1l);
+//        System.out.println(userInfo);
+//        UserRoleRs userRoleRs = accountModuleService.selectOrUpdateRedisRolesByUserId(1l);
+//        System.out.println(userRoleRs);
+//        UserFunctionRs userFunctionRs = accountModuleService.selectOrUpdateRedisFunctionsByUserId(1l);
+//        System.out.println(userFunctionRs);
+//
+//    }
 
 }

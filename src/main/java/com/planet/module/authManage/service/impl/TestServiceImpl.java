@@ -1,6 +1,6 @@
 package com.planet.module.authManage.service.impl;
 
-import com.planet.module.authManage.dao.mapper.TestMapper;
+import com.planet.module.authManage.dao.mysql.mapper.TestMapper;
 import com.planet.module.authManage.entity.mysql.Test;
 import com.planet.module.authManage.service.TestService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
