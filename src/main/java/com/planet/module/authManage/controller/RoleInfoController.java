@@ -11,6 +11,7 @@ import com.planet.module.authManage.entity.mysql.UserRoleRs;
 import com.planet.module.authManage.service.RoleFunctionRsService;
 import com.planet.module.authManage.service.RoleInfoService;
 import com.planet.module.authManage.service.UserRoleRsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/authManage/role-info")
+@Slf4j
 public class RoleInfoController extends BaseControllerImpl<RoleInfoService, RoleInfo> {
     @Autowired
     private RoleInfoService roleInfoService;
@@ -41,13 +43,13 @@ public class RoleInfoController extends BaseControllerImpl<RoleInfoService, Role
     public RspResult inserts(@RequestBody List<RoleInfo> list) {
 
         if(list==null&&list.size()<=0){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
-        Integer inserts = roleInfoService.inserts(list);
-        if(inserts==null){
-            return RspResult.FAILED;
+        RspResult rspResult = roleInfoService.inserts(list);
+        if(rspResult==null){
+            return RspResult.SYS_ERROR;
         }
-        return new RspResult(inserts);
+        return rspResult;
     }
 
     /**
@@ -59,14 +61,13 @@ public class RoleInfoController extends BaseControllerImpl<RoleInfoService, Role
     @Override
     public RspResult updatesByIds(@RequestBody List<RoleInfo> list) {
         if(list==null&&list.size()<=0){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
-        Integer updates = roleInfoService.updatesByIds(list);
-        if(updates==null){
-            return RspResult.FAILED;
+        RspResult rspResult = roleInfoService.updatesByIds(list);
+        if(rspResult==null){
+            return RspResult.SYS_ERROR;
         }
-
-        return new RspResult(updates);
+        return rspResult;
     }
 
     /**
@@ -78,12 +79,12 @@ public class RoleInfoController extends BaseControllerImpl<RoleInfoService, Role
     @Override
     public RspResult deletesByIds(@RequestParam List<Long> ids) {
         if(ids==null&&ids.size()<=0){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         Integer deletes=roleInfoService.deletesByIds(ids);
 
         if(deletes==null){
-            return RspResult.FAILED;
+            return RspResult.SYS_ERROR;
         }
         return new RspResult(deletes);
     }
@@ -96,11 +97,11 @@ public class RoleInfoController extends BaseControllerImpl<RoleInfoService, Role
     @RequestMapping(value = "/excelImport",method = RequestMethod.POST)
     public RspResult excelImport(@RequestParam("excelFile") MultipartFile excelFile){
         if(excelFile==null){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         RspResult rspResult = roleInfoService.excelImport(excelFile);
         if(rspResult==null){//发生了异常
-            return RspResult.FAILED;
+            return RspResult.SYS_ERROR;
         }
         return rspResult;
     }
@@ -113,6 +114,7 @@ public class RoleInfoController extends BaseControllerImpl<RoleInfoService, Role
     @RequestMapping(value = "/excelExport",method = RequestMethod.POST)
     public void excelExport(@RequestBody RoleInfo t){
         if(t==null){
+            log.error("excel导出用的参数不能为空");
             return;
         }
 

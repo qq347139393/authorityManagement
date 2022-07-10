@@ -1,17 +1,16 @@
 package com.planet.module.authManage.service.impl;
 
-import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.builder.ExcelReaderSheetBuilder;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.planet.common.constant.LocalCacheConstantService;
 import com.planet.common.constant.ServiceConstant;
-import com.planet.common.constant.UtilsConstant;
 import com.planet.common.util.RspResult;
+import com.planet.common.util.RspResultCode;
 import com.planet.module.authManage.converter.easyExcelPlus.RoleInfoExcelToPoConverter;
-import com.planet.module.authManage.converter.easyExcelPlus.UserInfoExcelToPoConverter;
 import com.planet.module.authManage.dao.mysql.mapper.RoleFunctionRsMapper;
 import com.planet.module.authManage.dao.mysql.mapper.RoleInfoMapper;
 import com.planet.module.authManage.entity.mysql.RoleFunctionRs;
@@ -20,6 +19,8 @@ import com.planet.module.authManage.entity.mysql.UserRoleRs;
 import com.planet.module.authManage.service.RoleInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.planet.module.authManage.service.UserRoleRsService;
+import com.planet.system.fieldsRepeatCheck.FieldsRepeatCheckResult;
+import com.planet.system.fieldsRepeatCheck.FieldsRepeatCheckUtil;
 import com.planet.system.sysUserOperationLog.annotation.SysUserOperationMethodLog;
 import com.planet.system.sysUserOperationLog.enumeration.MethodType;
 import com.planet.system.sysUserOperationLog.enumeration.ParameterType;
@@ -36,13 +37,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -58,6 +60,8 @@ public class RoleInfoServiceImpl extends ServiceImpl<RoleInfoMapper, RoleInfo> i
     private UserRoleRsService userRoleRsService;
     @Autowired
     private RoleFunctionRsMapper roleFunctionRsMapper;
+    @Autowired
+    private RoleInfoMapper roleInfoMapper;
 
     @Value("${readBatchCount}") //100
     private long readBatchCount;
@@ -72,37 +76,65 @@ public class RoleInfoServiceImpl extends ServiceImpl<RoleInfoMapper, RoleInfo> i
     @Transactional
     @Override
     @SysUserOperationMethodLog(MethodType= MethodType.INSERT,parameterType= ParameterType.List)
-    public Integer inserts(List<RoleInfo> list) {
+    public RspResult inserts(List<RoleInfo> list) {
         if(list==null&&list.size()<=0){
             throw new RuntimeException("新增失败:集合不能为空..事务回滚");
-        }else if(list.size()==1){
-            if(!save(list.get(0))){
+        }
+        //字段重复性校验
+        List<String> fieldNames=new ArrayList<>();
+        fieldNames.add("name");//name字段不可重复
+        fieldNames.add("code");//code字段不可重复
+        List<FieldsRepeatCheckResult<RoleInfo>> results = FieldsRepeatCheckUtil.fieldsRepeatChecks(roleInfoMapper, ServiceConstant.FIELDS_REPEAT_CHECK_METHOD, list, fieldNames, FieldsRepeatCheckUtil.INSERT);
+        //拿出可以执行的部分进行执行
+        List<RoleInfo> rightList = results.stream().filter(r -> r.getResult().equals(false)).map(r -> r.getData()).collect(Collectors.toList());
+        if(rightList.size()==1){
+            if(!save(rightList.get(0))){
                 throw new RuntimeException("新增失败,事务回滚");
             }
         }else{
-            if(!saveBatch(list)){
+            if(!saveBatch(rightList)){
                 throw new RuntimeException("新增失败,事务回滚");
             }
         }
-        return list.size();
+        //拿出字段重复的部分返回给前端
+        List<FieldsRepeatCheckResult<RoleInfo>> errorResults = results.stream().filter(r -> r.getResult().equals(true)).collect(Collectors.toList());
+
+        if(errorResults.size()>0){//存在字段重复性记录
+            return new RspResult(RspResultCode.FIELDS_REPEAT_ERROR,errorResults);
+        }
+        return RspResult.SUCCESS;
     }
 
     @Transactional
     @Override
     @SysUserOperationMethodLog(MethodType= MethodType.UPDATE,parameterType= ParameterType.List)
-    public Integer updatesByIds(List<RoleInfo> list) {
+    public RspResult updatesByIds(List<RoleInfo> list) {
         if(list==null&&list.size()<=0){
             throw new RuntimeException("更新失败:集合不能为空..事务回滚");
-        }else if(list.size()==1){
-            if(!updateById(list.get(0))){
+        }
+        //字段重复性校验
+        List<String> fieldNames=new ArrayList<>();
+        fieldNames.add("name");//name字段不可重复
+        fieldNames.add("code");//code字段不可重复
+        List<FieldsRepeatCheckResult<RoleInfo>> results = FieldsRepeatCheckUtil.fieldsRepeatChecks(roleInfoMapper, ServiceConstant.FIELDS_REPEAT_CHECK_METHOD, list, fieldNames, FieldsRepeatCheckUtil.UPDATE);
+        //拿出可以执行的部分进行执行
+        List<RoleInfo> rightList = results.stream().filter(r -> r.getResult().equals(false)).map(r -> r.getData()).collect(Collectors.toList());
+        if(rightList.size()==1){
+            if(!updateById(rightList.get(0))){
                 throw new RuntimeException("更新失败,事务回滚");
             }
         }else{
-            if(!updateBatchById(list)){
+            if(!updateBatchById(rightList, LocalCacheConstantService.getValue("dao:daoBatchSize",Integer.class))){
                 throw new RuntimeException("更新失败,事务回滚");
             }
         }
-        return list.size();
+        //拿出字段重复的部分返回给前端
+        List<FieldsRepeatCheckResult<RoleInfo>> errorResults = results.stream().filter(r -> r.getResult().equals(true)).collect(Collectors.toList());
+
+        if(errorResults.size()>0){//存在字段重复性记录
+            return new RspResult(RspResultCode.FIELDS_REPEAT_ERROR,errorResults);
+        }
+        return RspResult.SUCCESS;
     }
 
     @Transactional
@@ -156,7 +188,7 @@ public class RoleInfoServiceImpl extends ServiceImpl<RoleInfoMapper, RoleInfo> i
             if(result.getResultCode()==0){//导入成功
                 return RspResult.SUCCESS;
             }else{//将失败结果返回
-                return new RspResult(result);
+                return RspResult.EXCEL_IMPORT_ERROR;
             }
         }catch (IOException e) {
             e.printStackTrace();
@@ -177,7 +209,7 @@ public class RoleInfoServiceImpl extends ServiceImpl<RoleInfoMapper, RoleInfo> i
         HttpServletResponse response = WebUtil.getResponse();
         // 1.模板
         InputStream templateInputStream = this.getClass().getClassLoader().getResourceAsStream(
-                "templates/角色信息模块-模板.xlsx");
+                "templates/excel/modular/角色信息模块-模板.xlsx");
 
         // 2.目标文件
         String targetFile = "角色信息模块-记录.xlsx";

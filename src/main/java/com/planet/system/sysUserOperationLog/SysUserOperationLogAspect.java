@@ -1,10 +1,15 @@
 package com.planet.system.sysUserOperationLog;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.planet.common.base.BaseEntity;
 import com.planet.common.constant.ComponentConstant;
+import com.planet.common.constant.LocalCacheConstantService;
+import com.planet.module.authManage.dao.mysql.mapper.ConfigureSysMapper;
 import com.planet.module.authManage.dao.mysql.sysUserOperationLogMapper.SysUserOperationLogDao;
+import com.planet.module.authManage.entity.mysql.ConfigureSys;
 import com.planet.module.authManage.entity.mysql.UserInfo;
 import com.planet.module.authManage.service.AccountModuleService;
 import com.planet.system.sysUserOperationLog.enumeration.MethodType;
@@ -39,6 +44,8 @@ public class SysUserOperationLogAspect {
     private SysUserOperationLogDao sysUserOperationLogDao;
     @Autowired
     private AccountModuleService accountModuleService;
+    @Autowired
+    private ConfigureSysMapper configureSysMapper;
 
     /**
      * Pointcut 切入点
@@ -223,8 +230,7 @@ public class SysUserOperationLogAspect {
 
                 logList.add(logObj);
             }
-
-            boolean b = sysUserOperationLogDao.saveBatch(logList, logSpringBean, ComponentConstant.DAO_BATCH_SIZE);
+            boolean b = sysUserOperationLogDao.saveBatch(logList, logSpringBean, LocalCacheConstantService.getValue("dao:daoBatchSize",Integer.class));
             if(b){
                 log.info("记录用户操作成功..");
             }else{

@@ -43,7 +43,7 @@ public class RoleFunctionRsController /* extends BaseControllerImpl<AuthRoleFunc
     @RequestMapping(value = "/setRoleAndFunctionRelations",method = RequestMethod.POST)
     public RspResult setRoleAndFunctionRelations(@RequestBody RoleFunctionRs authRoleFunctionRs){
         if(authRoleFunctionRs==null||authRoleFunctionRs.getRoleId()==null){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         Integer sum = roleFunctionRsService.setRoleAndFunctionRelations(authRoleFunctionRs);
         return sum!=null&&sum>=0?new RspResult(sum):RspResult.FAILED;

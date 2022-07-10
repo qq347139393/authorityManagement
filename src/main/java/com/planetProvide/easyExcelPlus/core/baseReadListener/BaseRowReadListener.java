@@ -22,15 +22,15 @@ public class BaseRowReadListener<T> extends AnalysisEventListener<T> {
     public long readBatchCount;
 
     private BaseExcelImportValid<T> baseExcelImportValid;
-
+    /** 分段遍历时,当前分段的行数量(如果超过临近值,就会进行批量持久化;而避免一次性操作太多) */
     private List<T> rows;
 
     private BaseDao baseDao;
-
+    /** 表示检验失败的行的集合 */
     private List<T> unqualifiedRows;
-
+    /** 结果标识 */
     private int resultCode;
-
+    /** 总行数 */
     private long rowsSum;
 
     private Result<T> result;

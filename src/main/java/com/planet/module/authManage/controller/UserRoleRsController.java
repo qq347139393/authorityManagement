@@ -42,10 +42,10 @@ public class UserRoleRsController /* extends BaseControllerImpl<UserRoleRsServic
     @RequestMapping(value = "/setUserAndRoleRelations",method = RequestMethod.POST)
     public RspResult setUserAndRoleRelations(@RequestBody UserRoleRs authUserRoleRs){
         if(authUserRoleRs==null||authUserRoleRs.getUserId()==null){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         Integer sum = userRoleRsService.setUserAndRoleRelations(authUserRoleRs);
-        return sum!=null&&sum>=0?new RspResult(sum):RspResult.FAILED;
+        return sum!=null&&sum>=0?new RspResult(sum):RspResult.SYS_ERROR;
     }
 
 }

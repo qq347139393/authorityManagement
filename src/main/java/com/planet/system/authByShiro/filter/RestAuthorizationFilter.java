@@ -87,7 +87,7 @@ public class RestAuthorizationFilter extends PermissionsAuthorizationFilter {
             // AJAX 请求返回 JSON
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/json; charset=utf-8");
-            response.getWriter().write(JSONUtil.toJsonStr(RspResult.FAILED));
+            response.getWriter().write(JSONUtil.toJsonStr(RspResult.NOLOGIN));
             return false;
         } else {
 
@@ -95,7 +95,7 @@ public class RestAuthorizationFilter extends PermissionsAuthorizationFilter {
             // 对于 AJAX 请求返回 JSON
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/json; charset=utf-8");
-            response.getWriter().write(JSONUtil.toJsonStr(RspResult.FAILED));
+            response.getWriter().write(JSONUtil.toJsonStr(RspResult.NOFUNCTION));
             return false;
         }
     }

@@ -20,14 +20,16 @@ public class UtilsConstant {
      * redis的userFunctionsPermits的key的父级名
      */
     public static final String REDIS_USER_ID_FOR_FUNCTIONS_PERMITS="userFunctionsPermits:";
-    /**
-     * redis存键值对的默认过期时间
-     */
-    public static final Long TTL_REDIS_DAO_MILLISECOND=3600000l;
-    /**
-     * jwt过期时间
-     */
-    public static final Long TTL_JWT_MILLISECOND=3600000l;
+//    /**
+//     * redis存键值对的默认过期时间+
+//     * 这种用的地方多的静态变量,直接初始化的时候就加载好
+//     */
+//    public static Long TTL_REDIS_DAO_MILLISECOND;
+//    /**
+//     * jwt过期时间+
+//     * 这种用的地方多的静态变量,直接初始化的时候就加载好
+//     */
+//    public static Long TTL_JWT_MILLISECOND;
     /**
      * JWT的签名秘钥
      */
@@ -36,10 +38,11 @@ public class UtilsConstant {
      * 存入redis缓存中的sessionId的前缀
      */
     public static final String SESSION_KEY="sessionKey:";
-    /**
-     * 存入redis缓存中的session的过期时间
-     */
-    public static final Long TTL_SESSION_MILLISECOND=3600000l;
+//    /**
+//     * 存入redis缓存中的session的过期时间+
+//     * 这种用的地方多的静态变量,直接初始化的时候就加载好
+//     */
+//    public static Long TTL_SESSION_MILLISECOND;
     /**
      * 用于[鉴证]的jwtToken的固定字段名
      */

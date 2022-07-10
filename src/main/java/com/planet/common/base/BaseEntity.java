@@ -34,6 +34,8 @@ public class BaseEntity<T extends BaseEntity> implements Serializable {
 //    private Integer deleted;
 
     //以下是数据表没有的字段,用于作为与前端交互的参数
+    @TableField(exist = false)//模糊查询用到的字段
+    private String key;
     /** 总条数 */
     @TableField(exist = false)
     private Long total;
@@ -45,7 +47,7 @@ public class BaseEntity<T extends BaseEntity> implements Serializable {
     private Long current;
     /** 总页数 */
     @TableField(exist = false)
-    private Long pageCount;
+    private Long pages;
     /** 查询数据列表 */
     @TableField(exist = false)
     private List<T> records;

@@ -62,7 +62,7 @@ public class JwtAuthcFilter extends FormAuthenticationFilter {
         //构建错误的响应信息
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
-        response.getWriter().write(JSONUtil.toJsonStr(RspResult.FAILED));
+        response.getWriter().write(JSONUtil.toJsonStr(RspResult.NOLOGIN));
         return false;
     }
 }

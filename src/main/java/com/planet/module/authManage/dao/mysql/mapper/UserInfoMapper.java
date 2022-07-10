@@ -24,10 +24,10 @@ public interface UserInfoMapper extends BaseMapper<UserInfo> {
      * @return
      */
     @Select("<script>" +
-            "select f.id,f.name,f.code,f.describ,f.url,f.permit,f.shiro_order,f.path,f.route_order,f.parent_id,f.level,f.status from" +
+            "select f.id,f.name,f.code,f.describ,f.url,f.permit,f.icon,f.path,f.route_order,f.parent_id,f.type,f.status from" +
             " user_role_rs ur INNER JOIN role_info r on ur.role_id=r.id" +
             " INNER JOIN role_function_rs rf on r.id=rf.role_id " +
-            " INNER JOIN function_info f on rf.function_id=f.id" +
+            " INNER JOIN function_info f on rf.function_id=f.id " +
             " where ur.user_id in " +
             " <foreach collection='userIds' item='item' open='(' separator=',' close=')'>" +
             " #{item} "+

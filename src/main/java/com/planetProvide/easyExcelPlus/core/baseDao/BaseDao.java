@@ -61,7 +61,7 @@ public class BaseDao<T> implements ApplicationContextAware {
             //2.判断采用spring管理对象的模式,还是自己new对象的模式..创建持久化操作的对象
             Object daoClassBean =null;
             //3.构建执行持久化操作的类名或对象
-            String simpleName = tClass.getSimpleName();
+            String simpleName = tClass.getSimpleName();//这个列对象的类名要与执行持久化的类的名称有一定的对应规律,否则无法进行通用性处理
             if(daoFullClassName==null||"".equals(daoFullClassName)){
                 daoFullClassName=serviceClassFullNamePrefix+simpleName+serviceClassNameSuffix;
             }

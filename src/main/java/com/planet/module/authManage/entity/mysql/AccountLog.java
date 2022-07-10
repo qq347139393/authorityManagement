@@ -49,11 +49,14 @@ public class AccountLog extends BaseEntity<AccountLog> implements Serializable {
     @TableField(fill = FieldFill.INSERT)
     private Date creatime;
 
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    //这个值不能一开始填充,因为我们的统计用户在线时长的模块中要用这个字段是否为null来判断本次是否已经登出系统
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updatime;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updator;
 
     @TableField(fill = FieldFill.INSERT)

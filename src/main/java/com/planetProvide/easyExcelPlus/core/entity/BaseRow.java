@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
+@Deprecated
 public class BaseRow<T> implements Serializable {
     /** 当前记录的编号 */
     private long rowOrder;

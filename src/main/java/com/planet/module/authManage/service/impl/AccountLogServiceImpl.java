@@ -9,10 +9,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.planet.common.constant.ServiceConstant;
 import com.planet.module.authManage.converter.easyExcelPlus.AccountLogExcelToPoConverter;
-import com.planet.module.authManage.converter.easyExcelPlus.RoleLogExcelToPoConverter;
 import com.planet.module.authManage.dao.mysql.mapper.AccountLogMapper;
 import com.planet.module.authManage.entity.mysql.AccountLog;
-import com.planet.module.authManage.entity.mysql.RoleLog;
 import com.planet.module.authManage.service.AccountLogService;
 import com.planet.util.jdk8.mapAndEntityConvert.MapAndEntityConvertUtil;
 import com.planet.util.springBoot.WebUtil;
@@ -62,6 +60,12 @@ public class AccountLogServiceImpl extends ServiceImpl<AccountLogMapper, Account
             if("size".equals(key)||"current".equals(key)){
                 continue;
             }
+            if("key".equals(key)){
+                //标准模糊查询
+                //tQueryWrapper.like("name", name).or().like("lastname", name)
+                tQueryWrapper.like("name", stringObjectMap.get("key"));
+                continue;
+            }
             tQueryWrapper.eq(key,stringObjectMap.get(key));
         }
 
@@ -74,7 +78,7 @@ public class AccountLogServiceImpl extends ServiceImpl<AccountLogMapper, Account
         HttpServletResponse response = WebUtil.getResponse();
         // 1.模板
         InputStream templateInputStream = this.getClass().getClassLoader().getResourceAsStream(
-                "templates/账号操作记录模块-模板.xlsx");
+                "templates/excel/modular/账号操作记录模块-模板.xlsx");
 
         // 2.目标文件
         String targetFile = "账号操作记录模块-记录.xlsx";

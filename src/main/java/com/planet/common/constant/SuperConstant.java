@@ -18,5 +18,9 @@ public class SuperConstant {
 	 */
 	public static final int HASH_INTERATIONS = 1024;
 
+//	/**
+//	 * 是否开启验证码开关
+//	 */
+//	public static final boolean VERIFICATION_CODE_FLAG=false;
 
 }

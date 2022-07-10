@@ -3,9 +3,11 @@ package com.planet.util.springBoot;
 import lombok.Data;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+//@Component
 @Data
 public class SpringBootQuartzManager {
 

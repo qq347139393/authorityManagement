@@ -2,11 +2,12 @@ package com.planet.system.authByShiro;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.planet.common.constant.ComponentConstant;
+import com.planet.common.constant.LocalCacheConstantService;
 import com.planet.common.constant.SuperConstant;
 import com.planet.common.constant.UtilsConstant;
+import com.planet.module.authManage.dao.mysql.mapper.FunctionInfoMapper;
 import com.planet.module.authManage.dao.redis.authByShiro.ShiroRedisSessionDao;
 import com.planet.module.authManage.entity.mysql.FunctionInfo;
-import com.planet.module.authManage.service.FunctionInfoService;
 import com.planet.system.authByShiro.customSettings.*;
 import com.planet.system.authByShiro.filter.JwtAuthcFilter;
 import com.planet.system.authByShiro.filter.RestAuthorizationFilter;
@@ -35,7 +36,7 @@ import java.util.Map;
 @Log4j2
 public class ShiroConfig {
     @Autowired
-    private FunctionInfoService functionInfoService;
+    private FunctionInfoMapper functionInfoMapper;
 
 
     /**
@@ -105,37 +106,8 @@ public class ShiroConfig {
         sessionManager.setSessionValidationSchedulerEnabled(false);
         sessionManager.setSessionIdCookieEnabled(true);
         sessionManager.setSessionIdCookie(simpleCookie());
-        sessionManager.setGlobalSessionTimeout(UtilsConstant.TTL_SESSION_MILLISECOND);
+        sessionManager.setGlobalSessionTimeout(LocalCacheConstantService.getValue("redis:ttlSessionMillisecond",Long.class));
         return sessionManager;
-    }
-
-
-    /**
-     * @Description 拦截器链
-     */
-    private Map<String, String> filterChainDefinition(){
-        //这里的map需要有序map
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("/authManage/account-module/login","anon");//登录放行
-        map.put("/authManage/account-module/veriCodeByPic","anon");//获取验证码放行
-        //swagger相关的测试接口放行
-        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/swagger-ui.html", "anon");
-        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/webjars/**", "anon");
-        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/swagger-resources", "anon");
-        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/swagger-resources/**", "anon");
-        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/v2/**", "anon");
-        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/csrf", "anon");
-
-//        List<FunctionInfo> functionInfos = functionInfoService.list(new QueryWrapper<FunctionInfo>().isNotNull("url"));
-//        functionInfos.stream().forEach(functionInfo -> {//遍历需要[鉴权]的接口
-//            map.put(functionInfo.getUrl(), "rest-perms["+functionInfo.getPermit()+"]");
-//        });
-
-//        map.put("/authManage/test","anon");
-//        map.put("/**","jwt-authc");//余下的请求都要进行[鉴证]
-        map.put("/**","anon");
-//        HttpMethodPermissionFilter
-        return map;
     }
 
     /**
@@ -145,40 +117,55 @@ public class ShiroConfig {
         Map<String, Filter> map = new HashMap<String, Filter>();
 //        map.put("role-or", new RolesOrAuthorizationFilter());
 //        map.put("kicked-out", new KickedOutAuthorizationFilter(redissonClient(), redisSessionDao(), shiroSessionManager()));
-//        map.put("jwt-authc", new JwtAuthcFilter());//鉴证过滤器
+        map.put("jwt-authc", new JwtAuthcFilter());//鉴证过滤器
 //        map.put("rest-perms", new RestAuthorizationFilter());//restful鉴权过滤器
 //        map.put("jwt-perms", new JwtPermsFilter());
 //        map.put("jwt-roles", new JwtRolesFilter());
         return map;
     }
 
-//    /**
-//     * @Description Shiro过滤器
-//     */
-//    @Bean("shiroFilter")
-//    public ShiroFilterFactoryBean shiroFilterFactoryBean(@Qualifier("defaultWebSecurityManager") DefaultWebSecurityManager defaultWebSecurityManager){
-//        ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
-//        shiroFilter.setSecurityManager(defaultWebSecurityManager);
-//        //使自定义拦截器生效
-//        shiroFilter.setFilters(filters());
-//        shiroFilter.setFilterChainDefinitionMap(filterChainDefinition());
-//        shiroFilter.setLoginUrl("/login");
-//        shiroFilter.setUnauthorizedUrl("/login");
-//        return shiroFilter;
-//    }
+    //权限链
+    public Map<String, String> loadFilterChainDefinition() {
+        //这里的map需要有序map
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("/authManage/account-module/login","anon");//登录放行
+        map.put("/authManage/account-module/isVeriCodeByPic","anon");//是否启用验证码放行
+        map.put("/authManage/account-module/veriCodeByPic","anon");//获取验证码放行
+        //swagger相关的测试接口放行
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/swagger-ui.html", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/webjars/**", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/swagger-resources", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/swagger-resources/**", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/v2/**", "anon");
+        map.put(ComponentConstant.SWAGGER2_DEFAULT_PATH+"/csrf", "anon");
+        //放心静态文件
+        map.put("/file/**","anon");
+
+//        List<FunctionInfo> functionInfos = functionInfoMapper.selectList(new QueryWrapper<FunctionInfo>().isNotNull("url"));
+//        functionInfos.stream().forEach(functionInfo -> {//遍历需要[鉴权]的接口
+//            map.put(functionInfo.getUrl(), "rest-perms["+functionInfo.getPermit()+"]");
+//        });
+
+//        map.put("/authManage/test","anon");
+        map.put("/**","jwt-authc");//余下的请求都要进行[鉴证]
+//        map.put("/**","anon");
+//        HttpMethodPermissionFilter
+        return map;
+    }
+
     /**
      * @Description Shiro过滤器
      */
-    @Bean("shiroFilter")
+    @Bean("restShiroFilterFactoryBean")
     public RestShiroFilterFactoryBean restShiroFilterFactoryBean(@Qualifier("defaultWebSecurityManager") DefaultWebSecurityManager defaultWebSecurityManager) {
-        RestShiroFilterFactoryBean shiroFilter = new RestShiroFilterFactoryBean();
-        shiroFilter.setSecurityManager(defaultWebSecurityManager);
+        RestShiroFilterFactoryBean restShiroFilterFactoryBean = new RestShiroFilterFactoryBean();
+        restShiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager);
         //使自定义拦截器生效
-        shiroFilter.setFilters(filters());
-        shiroFilter.setFilterChainDefinitionMap(filterChainDefinition());
-        shiroFilter.setLoginUrl("/login");
-        shiroFilter.setUnauthorizedUrl("/login");
-        return shiroFilter;
+        restShiroFilterFactoryBean.setFilters(filters());
+        restShiroFilterFactoryBean.setFilterChainDefinitionMap(loadFilterChainDefinition());
+        restShiroFilterFactoryBean.setLoginUrl("/login");
+        restShiroFilterFactoryBean.setUnauthorizedUrl("/login");
+        return restShiroFilterFactoryBean;
     }
 
 

@@ -2,7 +2,7 @@ package com.planet.module.authManage.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.planet.common.constant.UtilsConstant;
-import com.planet.common.util.TreeStructuresBuildUtilNoField;
+import com.planet.util.jdk8.TreeStructuresUtil;
 import com.planet.module.authManage.dao.mysql.mapper.FunctionInfoMapper;
 import com.planet.module.authManage.dao.mysql.mapper.RoleFunctionRsMapper;
 import com.planet.module.authManage.dao.mysql.mapper.UserRoleRsMapper;
@@ -61,16 +61,16 @@ public class RoleFunctionRsServiceImpl extends ServiceImpl<RoleFunctionRsMapper,
             authRoleFunctionRs.setFunctionDesc(authFunctionInfo.getDescrib());
             authRoleFunctionRs.setFunctionUrl(authFunctionInfo.getUrl());
             authRoleFunctionRs.setFunctionPermit(authFunctionInfo.getPermit());
-            authRoleFunctionRs.setFunctionShiroOrder(authFunctionInfo.getShiroOrder());
+            authRoleFunctionRs.setFunctionIcon(authFunctionInfo.getIcon());
             authRoleFunctionRs.setFunctionPath(authFunctionInfo.getPath());
             authRoleFunctionRs.setFunctionRouteOrder(authFunctionInfo.getRouteOrder());
             authRoleFunctionRs.setParentId(authFunctionInfo.getParentId());
-            authRoleFunctionRs.setFunctionLevel(authFunctionInfo.getLevel());
+            authRoleFunctionRs.setFunctionType(authFunctionInfo.getType());
             if (b) authRoleFunctionRs.setRoleId(roleId);//以此来标识当前角色是否含有这个权限
             return authRoleFunctionRs;
         }).collect(Collectors.toList());
         //4.对全权限集合进行树状结构化处理
-        return new TreeStructuresBuildUtilNoField<RoleFunctionRs>().buildTree(newAuthRoleFunctionRsList);
+        return TreeStructuresUtil.buildTree(newAuthRoleFunctionRsList,"ownId");
     }
 
     @Transactional

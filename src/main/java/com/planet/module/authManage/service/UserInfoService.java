@@ -25,7 +25,7 @@ public interface UserInfoService extends IService<UserInfo> {
      * @param list
      * @return
      */
-    Integer inserts(MultipartFile[] multipartFiles, List<UserInfo> list);
+    RspResult inserts(MultipartFile[] multipartFiles, List<UserInfo> list);
 
     /**
      * 修改一条或多条用户记录
@@ -33,7 +33,7 @@ public interface UserInfoService extends IService<UserInfo> {
      * @param list
      * @return
      */
-    Integer updatesByIds(MultipartFile[] multipartFiles, List<UserInfo> list);
+    RspResult updatesByIds(MultipartFile[] multipartFiles, List<UserInfo> list);
 
     /**
      * 根据多个id删除多条用户记录

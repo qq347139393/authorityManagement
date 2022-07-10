@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -60,6 +61,9 @@ public class UserInfo extends BaseEntity<UserInfo> implements Serializable {
     @ApiModelProperty(value = "头像路径")
     private String portrait;
 
+    @ApiModelProperty(value = "性别")
+    private Integer gender;
+
     @ApiModelProperty(value = "二维码路径")
     private String qrCode;
 
@@ -69,11 +73,13 @@ public class UserInfo extends BaseEntity<UserInfo> implements Serializable {
     @TableField(fill = FieldFill.INSERT)
     private Date creatime;
 
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updatime;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updator;
 
     @TableField(fill = FieldFill.INSERT)
@@ -94,6 +100,8 @@ public class UserInfo extends BaseEntity<UserInfo> implements Serializable {
     private String verificationCode;
     @TableField(exist = false)
     private String newPassword;
+    @TableField(exist = false)
+    private String jwtToken;
 
 
 }

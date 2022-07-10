@@ -18,9 +18,9 @@ import java.util.List;
  */
 public interface RoleInfoService extends IService<RoleInfo> {
 
-    Integer inserts(List<RoleInfo> list);
+    RspResult inserts(List<RoleInfo> list);
 
-    Integer updatesByIds(List<RoleInfo> list);
+    RspResult updatesByIds(List<RoleInfo> list);
 
     Integer deletesByIds(List<Long> ids);
 

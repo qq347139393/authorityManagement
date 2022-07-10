@@ -43,7 +43,7 @@ public class AccountModuleController {
         //1.参数合法性校验
         if(userInfo==null||userInfo.getName()==null||"".equals(userInfo.getName())
                 ||userInfo.getPassword()==null||"".equals(userInfo.getPassword())){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
 
         return accountModuleService.login(userInfo.getName(),userInfo.getPassword(),userInfo.getVerificationCode());
@@ -64,13 +64,40 @@ public class AccountModuleController {
     }
 
     /**
+     * 是否需要获取验证码的接口
+     * 前端页面根据返回值再决定是否发送获取图片验证码的请求,还是直接渲染没有验证码的登录页
+     * @return
+     */
+    @RequestMapping(value = "/isVeriCodeByPic",method = RequestMethod.GET)
+    public RspResult isGetVeriCodeByPic(){
+        RspResult rspResult=accountModuleService.isGetVeriCodeByPic();
+        if(rspResult==null){
+            return RspResult.FAILED;
+        }
+        return rspResult;
+    }
+
+    /**
      * 获取图片验证码
      * 在登录界面展示给用户之前调用此方法获取图片,该数据要配合sessionId存入redis缓存中
      * @return
      */
     @RequestMapping(value = "/veriCodeByPic",method = RequestMethod.GET)
-    public void getVeriCodeByPic(){
-        accountModuleService.getVeriCodeByPic();
+    public RspResult getVeriCodeByPic(){
+        return accountModuleService.getVeriCodeByPic();
+    }
+
+    @RequestMapping(value = "/checkToken",method = RequestMethod.POST)
+    public RspResult checkToken(@RequestBody UserInfo user){
+        //需要name和jwtToken
+        if(user==null||StrUtil.isEmpty(user.getJwtToken())||StrUtil.isEmpty(user.getName())){
+            return RspResult.PAPAMETER_ERROR;
+        }
+        RspResult rspResult=accountModuleService.checkToken(user);
+        if(rspResult!=null){
+            return rspResult;
+        }
+        return RspResult.SYS_ERROR;
     }
 
     /**
@@ -96,11 +123,11 @@ public class AccountModuleController {
         if(StrUtil.isEmpty(usersJson)){
             return RspResult.FAILED;
         }
-        boolean b=accountModuleService.updateByMyIds(multipartFile,usersJson);
-        if(b){
-            return RspResult.SUCCESS;
+        RspResult rspResult=accountModuleService.updateByMyIds(multipartFile,usersJson);
+        if(rspResult==null){
+            return RspResult.SYS_ERROR;
         }
-        return RspResult.FAILED;
+        return rspResult;
     }
 
 //    /**
@@ -141,7 +168,7 @@ public class AccountModuleController {
     @RequestMapping(value ="/password",method = RequestMethod.PUT)
     public RspResult updateMyPassword(@RequestBody UserInfo t){
         if(t==null||StrUtil.isEmpty(t.getPassword())||StrUtil.isEmpty(t.getNewPassword())){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
 
         boolean b=accountModuleService.updateMyPassword(t);

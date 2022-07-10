@@ -19,5 +19,21 @@ public class ServiceConstant {
      */
     public static final int CLOSE=0;
 
+    /**
+     * 字段重复性校验使用的约定方法(MybatisPlus中提供的一个查询全部记录的方法)
+     */
+    public static final String FIELDS_REPEAT_CHECK_METHOD="selectList";
+
+//    /**
+//     * 活跃用户默认的门槛值+
+//     * 这种用的地方多的静态变量,直接初始化的时候就加载好
+//     */
+//    public static long ACTIVE_USER_THRESHOLD;
+
+//    /**
+//     * 用户头像图片文件的默认路径+
+//     */
+//    public static final String USER_PORTRAIT_DEFAULT_URL="{'userPortraitDefaultUrl':'/configureSystem/默认图片测试.jpg'}";
+
 
 }

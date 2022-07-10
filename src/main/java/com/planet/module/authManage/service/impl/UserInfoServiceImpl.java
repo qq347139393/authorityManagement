@@ -5,6 +5,7 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
@@ -13,6 +14,12 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.planet.common.constant.LocalCacheConstantService;
+import com.planet.common.util.RspResultCode;
+import com.planet.module.authManage.entity.mysql.RoleInfo;
+import com.planet.module.authManage.service.authByShiro.ShiroService;
+import com.planet.system.fieldsRepeatCheck.FieldsRepeatCheckResult;
+import com.planet.system.fieldsRepeatCheck.FieldsRepeatCheckUtil;
 import com.planet.system.sysUserOperationLog.annotation.SysUserOperationMethodLog;
 import com.planet.system.sysUserOperationLog.enumeration.MethodType;
 import com.planet.system.sysUserOperationLog.enumeration.ParameterType;
@@ -34,7 +41,6 @@ import com.planet.module.authManage.entity.mysql.UserRoleRs;
 import com.planet.module.authManage.service.UserInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.planet.util.springBoot.WebUtil;
-import com.planet.module.authManage.service.authByShiro.UserShiroService;
 import com.planet.util.shiro.DigestsUtil;
 import com.planet.util.jdk8.mapAndEntityConvert.MapAndEntityConvertUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +54,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -74,7 +82,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Autowired
     private UserRoleRsMapper userRoleRsMapper;
     @Autowired
-    private UserShiroService userShiroService;
+    private ShiroService shiroService;
+    @Autowired
+    private UserInfoMapper userInfoMapper;
 
     @Value("${readBatchCount}") //100
     private long readBatchCount;
@@ -88,19 +98,29 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Transactional
     @Override
     @SysUserOperationMethodLog(MethodType= MethodType.INSERT,parameterType= ParameterType.List)
-    public Integer inserts(MultipartFile[] multipartFiles, List<UserInfo> list) {
+    public RspResult inserts(MultipartFile[] multipartFiles, List<UserInfo> list) {
+        //字段重复性校验
+        List<String> fieldNames=new ArrayList<>();
+        fieldNames.add("name");//name字段不可重复
+        fieldNames.add("code");//code字段不可重复
+        List<FieldsRepeatCheckResult<UserInfo>> results = FieldsRepeatCheckUtil.fieldsRepeatChecks(userInfoMapper, ServiceConstant.FIELDS_REPEAT_CHECK_METHOD, list, fieldNames, FieldsRepeatCheckUtil.INSERT);
+        //拿出可以执行的部分进行执行
+        List<UserInfo> rightList = results.stream().filter(r -> r.getResult().equals(false)).map(r -> r.getData()).collect(Collectors.toList());
+        //拿出字段重复的部分返回给前端
+        List<FieldsRepeatCheckResult<UserInfo>> errorResults = results.stream().filter(r -> r.getResult().equals(true)).collect(Collectors.toList());
+
         //1.所有用户的密码都要进行盐值加密
-        list.stream().forEach(user ->{
+        rightList.stream().forEach(user ->{
             Map<String, String> map = DigestsUtil.encryptPassword(user.getPassword());
             user.setPassword(map.get("password"));
             user.setSalt(map.get("salt"));
 
         });
         //2.然后进行存入:此时qrCode和portrait字段是空的,如果新增成功才会将这两个字段的内容生成(两个图片会接下去生成出来)
-        boolean b = saveBatch(list);
+        boolean b = saveBatch(rightList);
         if(b){
             //3.新增成功后,进行
-            list.stream().forEach(user ->{
+            rightList.stream().forEach(user ->{
                 //查找对应的MultipartFile文件,更新新增用户的头像图片
                 String pathPrefix=mvcStaticPathPattern.substring(0,mvcStaticPathPattern.lastIndexOf("/"));
                 boolean flag=false;
@@ -136,8 +156,8 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                     }
                 }
                 if(!flag){//未找到匹配的头像图片,则使用系统设定的默认的头像图片
-                    ConfigureSys configureSys = configureSysMapper.selectOne(new QueryWrapper<ConfigureSys>().eq("name", "user_portrait_default_url"));
-                    FileUtil.copy(webUploadPath+configureSys.getValue1(),webUploadPath+portraitUrl,true);
+                    //先看当前类的对应静态变量是否已经存值了,如果有则直接取出来
+                    FileUtil.copy(webUploadPath+JSONUtil.parseObj(LocalCacheConstantService.getValue("account:userPortraitDefaultUrl")).get("userPortraitDefaultUrl",String.class),webUploadPath+portraitUrl,true);
                     user.setPortrait(pathPrefix+portraitUrl);
                 }
 
@@ -158,9 +178,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             throw new RuntimeException("新增用户失败,事务回滚");
         }
         //进行更新操作
-        boolean b1 = updateBatchById(list);
+        boolean b1 = updateBatchById(rightList);
         if(b1){
-            return list.size();
+            if(errorResults.size()>0){//存在字段重复性记录
+                return new RspResult(RspResultCode.FIELDS_REPEAT_ERROR,errorResults);
+            }
+            return RspResult.SUCCESS;
         }else{
             //回滚
             throw new RuntimeException("新增用户失败,事务回滚");
@@ -170,9 +193,19 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Transactional
     @Override
     @SysUserOperationMethodLog(MethodType= MethodType.UPDATE,parameterType= ParameterType.List)
-    public Integer updatesByIds(MultipartFile[] multipartFiles, List<UserInfo> list) {
+    public RspResult updatesByIds(MultipartFile[] multipartFiles, List<UserInfo> list) {
+        //字段重复性校验
+        List<String> fieldNames=new ArrayList<>();
+        fieldNames.add("name");//name字段不可重复
+        fieldNames.add("code");//code字段不可重复
+        List<FieldsRepeatCheckResult<UserInfo>> results = FieldsRepeatCheckUtil.fieldsRepeatChecks(userInfoMapper, ServiceConstant.FIELDS_REPEAT_CHECK_METHOD, list, fieldNames, FieldsRepeatCheckUtil.UPDATE);
+        //拿出可以执行的部分进行执行
+        List<UserInfo> rightList = results.stream().filter(r -> r.getResult().equals(false)).map(r -> r.getData()).collect(Collectors.toList());
+        //拿出字段重复的部分返回给前端
+        List<FieldsRepeatCheckResult<UserInfo>> errorResults = results.stream().filter(r -> r.getResult().equals(true)).collect(Collectors.toList());
+
         //1.判断密码是否修改了,如果修改了就要进行盐值加密处理后修改密码和salt
-        list.stream().forEach(user ->{
+        rightList.stream().forEach(user ->{
             if(user.getSalt()!=null&&user.getSalt().equals("1")){//说明要修改当前用户的密码
                 Map<String, String> map = DigestsUtil.encryptPassword(user.getPassword());
                 user.setPassword(map.get("password"));
@@ -187,10 +220,10 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         });
         //2.然后进行更新:此时qrCode和portrait字段是还未更新,如果更新成功才会立刻更新这两个字段以及判断是否需要更新redis缓存中的用户信息
         //从而降低多个管理员用户在并发操作用户更新时出现互相干扰的概率
-        boolean b = updateBatchById(list);
+        boolean b = updateBatchById(rightList);
         if(b){
             //3.更新成功后,进行
-            list.stream().forEach(user ->{
+            rightList.stream().forEach(user ->{
                 //获取旧的头像图片和二维码图片的url,以便后面进行del标识
                 UserInfo oldUser = getById(user.getId());
                 String oldPortrait=oldUser.getPortrait();
@@ -229,8 +262,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                     }
                 }
                 if(!flag){//未找到匹配的头像图片,则使用系统设定的默认的头像图片
-                    ConfigureSys configureSys = configureSysMapper.selectOne(new QueryWrapper<ConfigureSys>().eq("name", "user_portrait_default_url"));
-                    FileUtil.copy(webUploadPath+configureSys.getValue1(),webUploadPath+portraitUrl,true);
+                    FileUtil.copy(webUploadPath+JSONUtil.parseObj(LocalCacheConstantService.getValue("account:userPortraitDefaultUrl")).get("userPortraitDefaultUrl",String.class),webUploadPath+portraitUrl,true);
                     user.setPortrait(pathPrefix+portraitUrl);
                 }
                 //将替换掉的头像图片文件进行del标识,后续会让定时任务将这些del的头像图片文件转移到ftp指定的仓库中保留
@@ -263,7 +295,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                         redisUser.setName(user.getName());
                         redisUser.setRealName(user.getRealName());
                         redisUser.setNickname(user.getNickname());
-                        baseMapper.updateCache(userInfoKey,redisUser,UtilsConstant.TTL_REDIS_DAO_MILLISECOND);
+                        baseMapper.updateCache(userInfoKey,redisUser,LocalCacheConstantService.getValue("redis:ttlRedisDaoMillisecond",Long.class));
                     }
 //                    Object r =baseMapper.getCache(userInfoKey);
                 }
@@ -273,9 +305,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             throw new RuntimeException("新增用户失败,事务回滚");
         }
         //进行更新操作
-        boolean b1 = updateBatchById(list);
+        boolean b1 = updateBatchById(rightList);
         if(b1){
-            return list.size();
+            if(errorResults.size()>0){//存在字段重复性记录
+                return new RspResult(RspResultCode.FIELDS_REPEAT_ERROR,errorResults);
+            }
+            return RspResult.SUCCESS;
         }else{
             //回滚
             throw new RuntimeException("新增用户失败,事务回滚");
@@ -314,7 +349,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             String userInfoKey= UtilsConstant.REDIS_USER_ID_FOR_USER_INFO+userId;
             baseMapper.removeCache(userInfoKey);
             //2)清空userSession
-            userShiroService.deleteUserSessionByUserId(userId);
+            shiroService.deleteUserSessionByUserId(userId);
             //3)清空userRoles
             String userRolesKey=UtilsConstant.REDIS_USER_ID_FOR_ROLES_PERMITS+userId;
             baseMapper.removeCache(userRolesKey);
@@ -362,10 +397,22 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             if("size".equals(key)||"current".equals(key)){
                 continue;
             }
+            if("key".equals(key)){
+                //标准模糊查询
+                //tQueryWrapper.like("name", name).or().like("lastname", name)
+                Map<String, Object> finalStringObjectMap1 = stringObjectMap;
+                tQueryWrapper.nested(i->{
+                    i.like("name", finalStringObjectMap1.get(key)).or().
+                            like("code", finalStringObjectMap1.get(key)).or().
+                            like("real_name", finalStringObjectMap1.get(key)).or().
+                            like("nickname", finalStringObjectMap1.get(key));
+                });
+                continue;
+            }
             tQueryWrapper.eq(key,stringObjectMap.get(key));
         }
 
-        IPage<UserInfo> pageData = page(page, tQueryWrapper.orderByAsc("id"));
+        IPage<UserInfo> pageData = page(page, tQueryWrapper.orderByDesc("updatime"));
         pageData.getRecords().stream().forEach(userInfo -> {
             userInfo.setPassword(null);
             userInfo.setSalt(null);
@@ -420,7 +467,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         HttpServletResponse response = WebUtil.getResponse();
         // 1.模板
         InputStream templateInputStream = this.getClass().getClassLoader().getResourceAsStream(
-                "templates/用户信息模块-模板.xlsx");
+                "templates/excel/modular/用户信息模块-模板.xlsx");
 
         // 2.目标文件
         String targetFile = "用户信息模块-记录.xlsx";

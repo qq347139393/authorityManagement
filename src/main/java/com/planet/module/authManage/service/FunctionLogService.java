@@ -1,5 +1,6 @@
 package com.planet.module.authManage.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.planet.module.authManage.entity.mysql.FunctionLog;
 
@@ -13,4 +14,7 @@ import com.planet.module.authManage.entity.mysql.FunctionLog;
  */
 public interface FunctionLogService extends IService<FunctionLog> {
 
+    IPage<FunctionLog> selectsByPage(FunctionLog t);
+
+    void excelExport(FunctionLog t);
 }

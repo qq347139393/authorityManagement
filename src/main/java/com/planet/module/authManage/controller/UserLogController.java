@@ -36,7 +36,7 @@ public class UserLogController /*extends BaseControllerImpl<UserLogService, User
     public RspResult selectsByIds(@RequestParam List<Long> ids) {
 
         if(ids==null&&ids.size()<=0){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         List<UserLog> userLogs = (List<UserLog>)userLogService.listByIds(ids);
         return new RspResult(userLogs);
@@ -51,11 +51,11 @@ public class UserLogController /*extends BaseControllerImpl<UserLogService, User
 //    @Override
     public RspResult selectsByPage(@RequestBody UserLog t) {
         if(t==null){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         IPage<UserLog> userLogIPage = userLogService.selectsByPage(t);
         if(userLogIPage==null){
-            return RspResult.FAILED;
+            return RspResult.SYS_ERROR;
         }
         return new RspResult(userLogIPage);
     }

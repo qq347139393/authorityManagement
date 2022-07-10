@@ -40,16 +40,16 @@ public class UserInfoController /*extends BaseControllerImpl<UserInfoService, Us
 //    @Override
     public RspResult inserts(@RequestParam("portraitFiles") MultipartFile[] multipartFiles, @RequestParam("usersJson") String usersJson) {
         if(StrUtil.isEmpty(usersJson)){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
 //        return RspResult.SUCCESS;
         JSONArray users = JSONUtil.parseArray(usersJson);
         List<UserInfo> userInfos = JSONUtil.toList(users, UserInfo.class);
-        Integer inserts = userInfoService.inserts(multipartFiles,userInfos);
-        if(inserts==null){
-            return RspResult.FAILED;
+        RspResult rspResult = userInfoService.inserts(multipartFiles,userInfos);
+        if(rspResult==null){
+            return RspResult.SYS_ERROR;
         }
-        return new RspResult(inserts);
+        return rspResult;
     }
 
     /**
@@ -62,17 +62,16 @@ public class UserInfoController /*extends BaseControllerImpl<UserInfoService, Us
 //    @Override
     public RspResult updatesByIds(@RequestParam("portraitFiles") MultipartFile[] multipartFiles, @RequestParam("usersJson") String usersJson) {
         if(StrUtil.isEmpty(usersJson)){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
 //        return RspResult.SUCCESS;
         JSONArray users = JSONUtil.parseArray(usersJson);
         List<UserInfo> userInfos = JSONUtil.toList(users, UserInfo.class);
-        Integer updates = userInfoService.updatesByIds(multipartFiles, userInfos);
-        if(updates==null){
-            return RspResult.FAILED;
+        RspResult rspResult = userInfoService.updatesByIds(multipartFiles, userInfos);
+        if(rspResult==null){
+            return RspResult.SYS_ERROR;
         }
-
-        return new RspResult(updates);
+        return rspResult;
     }
 
     /**
@@ -84,12 +83,12 @@ public class UserInfoController /*extends BaseControllerImpl<UserInfoService, Us
 //    @Override
     public RspResult deletesByIds(@RequestParam List<Long> ids) {
         if(ids==null&&ids.size()<=0){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
 
         Integer deletes=userInfoService.deletesByIds(ids);
         if(deletes==null){
-            return RspResult.FAILED;
+            return RspResult.SYS_ERROR;
         }
         return new RspResult(deletes);
     }
@@ -103,14 +102,14 @@ public class UserInfoController /*extends BaseControllerImpl<UserInfoService, Us
 //    @Override
     public RspResult selectsByIds(@RequestParam List<Long> ids) {
         if(ids==null&&ids.size()<=0){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
 
         List<UserInfo> userInfos = userInfoService.selectsByIds(ids);
         if(userInfos!=null&&userInfos.size()>0){
             return new RspResult(userInfos);
         }
-        return RspResult.FAILED;
+        return RspResult.SYS_ERROR;
     }
 
     /**
@@ -122,11 +121,11 @@ public class UserInfoController /*extends BaseControllerImpl<UserInfoService, Us
 //    @Override
     public RspResult selectsByPage(@RequestBody UserInfo t) {
         if(t==null){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         IPage<UserInfo> userInfoIPage = userInfoService.selectsByPage(t);
         if(userInfoIPage==null){
-            return RspResult.FAILED;
+            return RspResult.SYS_ERROR;
         }
         return new RspResult(userInfoIPage);
     }
@@ -139,11 +138,11 @@ public class UserInfoController /*extends BaseControllerImpl<UserInfoService, Us
     @RequestMapping(value = "/excelImport",method = RequestMethod.POST)
     public RspResult excelImport(@RequestParam("excelFile") MultipartFile excelFile){
         if(excelFile==null){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         RspResult rspResult = userInfoService.excelImport(excelFile);
         if(rspResult==null){//发生了异常
-            return RspResult.FAILED;
+            return RspResult.SYS_ERROR;
         }
         return rspResult;
     }

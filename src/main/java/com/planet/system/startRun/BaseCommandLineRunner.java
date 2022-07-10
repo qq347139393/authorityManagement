@@ -1,5 +1,15 @@
 package com.planet.system.startRun;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.planet.common.constant.ComponentConstant;
+import com.planet.common.constant.LocalCacheConstantService;
+import com.planet.common.constant.ServiceConstant;
+import com.planet.common.constant.UtilsConstant;
+import com.planet.module.authManage.dao.mysql.mapper.ConfigureSysMapper;
+import com.planet.module.authManage.entity.mysql.ConfigureSys;
 import com.planet.module.authManage.listener.redis.SessionEntryRemovedListener;
 import com.planet.module.authManage.listener.redis.SessionExpiredEntryListener;
 import com.planet.module.authManage.service.springBootQuartzJob.SystemFilesCleanJob;
@@ -25,6 +35,8 @@ import javax.annotation.PreDestroy;
 @PropertySource({"classpath:config/springBootQuartz.yml", "classpath:config/ftp.yml"})
 public class BaseCommandLineRunner implements CommandLineRunner {
     @Autowired
+    private ConfigureSysMapper configureSysMapper;
+    @Autowired
     private SpringBootQuartzManager springBootQuartzManager;
     @Autowired
     private Environment env;
@@ -38,14 +50,28 @@ public class BaseCommandLineRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info("<<<<<<<<<springboot容器启动后立刻执行>>>>>>>>>");
-        springBootQuartzRun();
+//        初始化需要动态加载的静态变量
+//        loadStaticVariables();
+        //启动需要立刻开启的定时任务
+//        springBootQuartzRun();
+        //创建session监听器
         createSessionManagerMap();
     }
+//    这些动态加载的静态变量,往往很多地方都会用到..所以直接统一在最初的时候进行赋值的话,代码层面可以节省很多重复性代码(性能和代码复杂度上进行适度调和)
+//    private void loadStaticVariables(){
+//        log.info("<<<<<<<<<启动后立刻:初始化需要动态加载的静态变量>>>>>>>>>");
+//    }
 
     private void springBootQuartzRun(){
-//        log.info("<<<<<<<<<启动后立刻:开启springBootQuartzManager定时任务>>>>>>>>>");
-//        springBootQuartzManager.addJob(SystemFilesCleanJob.class,env.getProperty("systemFilesCleanJobName"),
-//                env.getProperty("systemFilesCleanJobGroupName"), env.getProperty("systemFilesCleanJobCron"));
+        log.info("<<<<<<<<<启动后立刻:开启springBootQuartzManager定时任务>>>>>>>>>");
+
+        String storeSystemFilesCleanJob = LocalCacheConstantService.getValue("scheduleTask:systemFilesCleanJob");
+        JSONObject jsonObject= JSONUtil.parseObj(storeSystemFilesCleanJob);
+        String systemFilesCleanJobName = jsonObject.get("systemFilesCleanJobName", String.class);
+        String systemFilesCleanJobGroupName = jsonObject.get("systemFilesCleanJobGroupName", String.class);
+        String systemFilesCleanJobCron = jsonObject.get("systemFilesCleanJobCron", String.class);
+        springBootQuartzManager.addJob(SystemFilesCleanJob.class,systemFilesCleanJobName,
+                systemFilesCleanJobGroupName,systemFilesCleanJobCron);
     }
 
     private void createSessionManagerMap(){

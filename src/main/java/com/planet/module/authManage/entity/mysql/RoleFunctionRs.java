@@ -6,7 +6,7 @@ import java.util.Date;
 import java.io.Serializable;
 import java.util.List;
 
-import com.planet.common.base.BaseTreeStructuresEntityNoField;
+import com.planet.common.base.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -26,7 +26,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @ApiModel(value="RoleFunctionRs对象", description="角色:权限-关系表")
 @TableName("role_function_rs")
-public class RoleFunctionRs extends BaseTreeStructuresEntityNoField<RoleFunctionRs> implements Serializable {
+public class RoleFunctionRs extends BaseEntity<RoleFunctionRs> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,11 +45,13 @@ public class RoleFunctionRs extends BaseTreeStructuresEntityNoField<RoleFunction
     @TableField(fill = FieldFill.INSERT)
     private Date creatime;
 
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updatime;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updator;
 
     @TableField(fill = FieldFill.INSERT)
@@ -75,7 +77,7 @@ public class RoleFunctionRs extends BaseTreeStructuresEntityNoField<RoleFunction
     @TableField(exist = false)
     private String functionPermit;
     @TableField(exist = false)
-    private Integer functionShiroOrder;
+    private String functionIcon;
     @TableField(exist = false)
     private String functionPath;
     @TableField(exist = false)
@@ -83,9 +85,21 @@ public class RoleFunctionRs extends BaseTreeStructuresEntityNoField<RoleFunction
 //    @TableField(exist = false)
 //    private Long functionParentId;//父类已经有了parentId了
     @TableField(exist = false)
-    private Integer functionLevel;
+    private Integer functionType;
 
     //进行前端传入参数用到的字段
     @TableField(exist = false)
     private List<Long> functionIds;
+
+    //进行树状处理要用的字段
+    @TableField(exist = false)
+    private Long ownId;
+    //进行树状处理要用的字段
+    @TableField(exist = false)
+    private Long parentId;
+    //构建树状结构用到的参数
+    @TableField(exist = false)
+    private List<RoleFunctionRs> children;
+
+
 }

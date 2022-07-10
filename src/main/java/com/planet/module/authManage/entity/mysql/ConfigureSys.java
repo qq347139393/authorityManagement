@@ -31,20 +31,23 @@ public class ConfigureSys extends BaseEntity<ConfigureSys> implements Serializab
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @ApiModelProperty(value = "key值")
+    private String confKey;
+
     @ApiModelProperty(value = "类型编码")
     private String code;
 
-    @ApiModelProperty(value = "key值")
+    @ApiModelProperty(value = "配置名称")
     private String name;
 
-    @ApiModelProperty(value = "value1")
-    private String value1;
+    @ApiModelProperty(value = "value值(json格式)")
+    private String value;
 
-    @ApiModelProperty(value = "value2")
-    private String value2;
+    @ApiModelProperty(value = "value的类型")
+    private String valueType;
 
-    @ApiModelProperty(value = "value3")
-    private String value3;
+    @ApiModelProperty(value = "描述信息")
+    private String describ;
 
     @TableField(fill = FieldFill.INSERT)
     private Integer status;
@@ -52,11 +55,13 @@ public class ConfigureSys extends BaseEntity<ConfigureSys> implements Serializab
     @TableField(fill = FieldFill.INSERT)
     private Date creatime;
 
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updatime;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updator;
 
     @TableField(fill = FieldFill.INSERT)

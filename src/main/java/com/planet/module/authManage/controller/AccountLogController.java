@@ -8,6 +8,7 @@ import com.planet.module.authManage.entity.mysql.RoleLog;
 import com.planet.module.authManage.service.AccountLogService;
 import com.planet.module.authManage.service.RoleLogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class AccountLogController /* extends BaseControllerImpl<AccountLogServic
     public RspResult selectsByIds(@RequestParam List<Long> ids) {
 
         if(ids==null&&ids.size()<=0){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         List<AccountLog> accountLogs = (List<AccountLog>)accountLogService.listByIds(ids);
         return new RspResult(accountLogs);
@@ -51,7 +52,7 @@ public class AccountLogController /* extends BaseControllerImpl<AccountLogServic
 //    @Override
     public RspResult selectsByPage(@RequestBody AccountLog t) {
         if(t==null){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         IPage<AccountLog> accountLogIPage = accountLogService.selectsByPage(t);
         if(accountLogIPage==null){

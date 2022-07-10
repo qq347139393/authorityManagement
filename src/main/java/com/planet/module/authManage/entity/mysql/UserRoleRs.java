@@ -45,11 +45,13 @@ public class UserRoleRs extends BaseEntity<UserRoleRs> implements Serializable {
     @TableField(fill = FieldFill.INSERT)
     private Date creatime;
 
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updatime;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updator;
 
     @TableField(fill = FieldFill.INSERT)

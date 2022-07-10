@@ -83,6 +83,23 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
 
+        <!-- 目前实现对象深拷贝最佳而且没有bug的包,hutool工具类的有bug -->
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.1</version>
+        </dependency>
+
+        <!-- jfreechart绘制统计图表图片的api工具包 -->
+        <!-- https://mvnrepository.com/artifact/jfree/jfreechart -->
+        <dependency>
+            <groupId>jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.13</version>
+        </dependency>
+
+
         <!-- base64编解码工具: https://mvnrepository.com/artifact/commons-codec/commons-codec -->
         <dependency>
             <groupId>commons-codec</groupId>

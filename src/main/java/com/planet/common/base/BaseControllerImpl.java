@@ -133,11 +133,17 @@ public class BaseControllerImpl<M extends IService<T>,T extends BaseEntity> impl
                 if("size".equals(key)||"current".equals(key)){
                     continue;
                 }
+                if("key".equals(key)){
+                    //标准模糊查询
+                    //tQueryWrapper.like("name", name).or().like("lastname", name)
+                    tQueryWrapper.like("name", stringObjectMap.get("key"));
+                    continue;
+                }
                 tQueryWrapper.eq(key,stringObjectMap.get(key));
             }
 
 //            IPage<T> pageData = iService.page(page, tQueryWrapper.orderByAsc("id"));
-            List<T> list=iService.list(tQueryWrapper.orderByAsc("id"));
+            List<T> list=iService.list(tQueryWrapper.orderByDesc("updatime"));
             return new RspResult(list);
         }else{
             return RspResult.FAILED;
@@ -169,10 +175,16 @@ public class BaseControllerImpl<M extends IService<T>,T extends BaseEntity> impl
                 if("size".equals(key)||"current".equals(key)){
                     continue;
                 }
+                if("key".equals(key)){
+                    //标准模糊查询
+                    //tQueryWrapper.like("name", name).or().like("lastname", name)
+                    tQueryWrapper.like("name", stringObjectMap.get("key"));
+                    continue;
+                }
                 tQueryWrapper.eq(key,stringObjectMap.get(key));
             }
 
-            IPage<T> pageData = iService.page(page, tQueryWrapper.orderByAsc("id"));
+            IPage<T> pageData = iService.page(page, tQueryWrapper.orderByDesc("updatime"));
             return new RspResult(pageData);
         }else{
             return RspResult.FAILED;

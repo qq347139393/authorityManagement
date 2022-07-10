@@ -166,7 +166,7 @@ public class Test4 {
     @Test
     public void test7(){
 //        baseMapper.creatCache("测试失效时间","123",10000l);
-        baseMapper.creatCache("测试失效2",new Object(), UtilsConstant.TTL_REDIS_DAO_MILLISECOND);
+//        baseMapper.creatCache("测试失效2",new Object(), UtilsConstant.TTL_REDIS_DAO_MILLISECOND);
     }
 
     @Test

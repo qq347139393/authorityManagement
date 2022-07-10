@@ -1,18 +1,15 @@
 package com.planet.common.constant;
 
 public class ComponentConstant {
-    /**
-     * 登录密码输入错误的重试次数(从0开始计)
-     */
-    public static final Long RETRY_LIMIT_NUM=4l;
-    /**
-     * 密码输入次数超过指定限制后的等待时间,以秒为单位
-     */
-    public static final Long RETRY_LIMIT_EXCEED_WAIT_TIME=10l;
-    /**
-     * 密码输入次数超过指定限制后的错误提示信息
-     */
-    public static final String RETRY_LIMIT_EXCEED_MSG="密码次数错误"+(RETRY_LIMIT_NUM+1)+"次，请"+RETRY_LIMIT_EXCEED_WAIT_TIME+"分钟后重试";
+//    /**
+//     * 登录密码输入错误的重试次数(从0开始计)+
+//     */
+//    public static final Long RETRY_LIMIT_NUM=4l;
+//    /**
+//     * 密码输入次数超过指定限制后的等待时间,以分为单位+
+//     */
+//    public static final Long RETRY_LIMIT_EXCEED_WAIT_TIME=10l;
+
     /**
      * 用户登录次数的缓存key的前缀
      */
@@ -24,10 +21,11 @@ public class ComponentConstant {
      */
     public static final String SWAGGER2_DEFAULT_PATH = "/file/swagger2";
 
-    /**
-     * 设置DAO每次批量新增记录条数
-     */
-    public static final int DAO_BATCH_SIZE=200;
+//    /**
+//     * 设置DAO每次批量操作记录条数+
+//     * 多地方用的,直接在项目运行时加载
+//     */
+//    public static int DAO_BATCH_SIZE;
 
 
 }

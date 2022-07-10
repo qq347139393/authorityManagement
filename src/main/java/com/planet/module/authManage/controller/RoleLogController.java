@@ -36,7 +36,7 @@ public class RoleLogController /*extends BaseControllerImpl<RoleLogService, Role
     public RspResult selectsByIds(@RequestParam List<Long> ids) {
 
         if(ids==null&&ids.size()<=0){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         List<RoleLog> roleLogs = (List<RoleLog>)roleLogService.listByIds(ids);
         return new RspResult(roleLogs);
@@ -51,11 +51,11 @@ public class RoleLogController /*extends BaseControllerImpl<RoleLogService, Role
 //    @Override
     public RspResult selectsByPage(@RequestBody RoleLog t) {
         if(t==null){
-            return RspResult.FAILED;
+            return RspResult.PAPAMETER_ERROR;
         }
         IPage<RoleLog> userLogIPage = roleLogService.selectsByPage(t);
         if(userLogIPage==null){
-            return RspResult.FAILED;
+            return RspResult.SYS_ERROR;
         }
         return new RspResult(userLogIPage);
     }

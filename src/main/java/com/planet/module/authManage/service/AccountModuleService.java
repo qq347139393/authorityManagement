@@ -69,7 +69,7 @@ public interface AccountModuleService {
     /**
      * 获取登录用的验证码
      */
-    void getVeriCodeByPic();
+    RspResult getVeriCodeByPic();
 
     /**
      * 获取用户自己的用户信息
@@ -83,7 +83,7 @@ public interface AccountModuleService {
      * @param usersJson
      * @return
      */
-    boolean updateByMyIds(MultipartFile multipartFile, String usersJson);
+    RspResult updateByMyIds(MultipartFile multipartFile, String usersJson);
 
     /**
      * 修改自己的密码
@@ -91,4 +91,12 @@ public interface AccountModuleService {
      * @return
      */
     boolean updateMyPassword(com.planet.module.authManage.entity.mysql.UserInfo t);
+
+    /**
+     * 是否需要验证码的接口
+     * @return
+     */
+    RspResult isGetVeriCodeByPic();
+
+    RspResult checkToken(com.planet.module.authManage.entity.mysql.UserInfo user);
 }

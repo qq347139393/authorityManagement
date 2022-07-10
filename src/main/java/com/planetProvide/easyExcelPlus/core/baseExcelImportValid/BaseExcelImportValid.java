@@ -171,7 +171,7 @@ public class BaseExcelImportValid<T> {
 
             //最后将这个字段的所有错误信息汇总起来
             if(msgList!=null&&msgList.size()>0){
-                //获取setRowCode方法,并赋值为1
+                //获取setRowCode方法,并赋值为1:成功或失败的标识值,1表示当前行已经失败(只要有一个行的一个字段出问题,那就是本次检验结果为失败)
                 try {
                     t.getClass().getMethod((setRowCode==null||"".equals(setRowCode))?DefaultConstant.DEFAULT_SET_ROW_CODE:setRowCode, int.class).invoke(
                             t, unqualifiedRowCode==0?DefaultConstant.DEFAULT_UNQUALIFIED_ROW_CODE:unqualifiedRowCode);
@@ -181,13 +181,14 @@ public class BaseExcelImportValid<T> {
                     e.printStackTrace();
                 }
 //                t.setRowCode(1);//这个可以在最后面统一判断一次
-                msg.setUnqualifiedMsg(msgList);
-                msgs.add(msg);
+                msg.setUnqualifiedMsg(msgList);//每个字段的错误信息
+                msgs.add(msg);//整个一行的错误信息汇总
             }
         }
 
-        int rowCode = 0;
+        int rowCode = 0;//默认为0,表示检验结果初始时是正确的含义
         try {
+            //获取实际的校验结果
             rowCode = (Integer) t.getClass().getMethod((getRowCode==null||"".equals(getRowCode))?DefaultConstant.DEFAULT_GET_ROW_CODE:getRowCode).invoke(t);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
@@ -197,13 +198,14 @@ public class BaseExcelImportValid<T> {
 
         if(rowCode==(unqualifiedRowCode==0?DefaultConstant.DEFAULT_UNQUALIFIED_ROW_CODE:unqualifiedRowCode)){//说明当前记录不符合校验规则
             try {
+                //将msgs(存错误信息的集合)放入到当前行的检验结果集中
                 t.getClass().getMethod((setRowMsgs==null||"".equals(setRowMsgs))?DefaultConstant.DEFAULT_SET_ROW_MSGS:setRowMsgs, List.class).invoke(t, msgs);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             }catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
-            return t;
+            return t;//有错误的就返回当前进行检测的行对象
         }else{//符合校验规则的返回null,表示此记录不会存入失败记录的集合中
             return null;
         }

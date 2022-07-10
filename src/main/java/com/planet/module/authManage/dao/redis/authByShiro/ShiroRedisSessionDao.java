@@ -1,6 +1,7 @@
 package com.planet.module.authManage.dao.redis.authByShiro;
 
 import cn.hutool.core.util.StrUtil;
+import com.planet.common.constant.LocalCacheConstantService;
 import com.planet.common.constant.UtilsConstant;
 import com.planet.module.authManage.listener.redis.SessionExpiredEntryListener;
 import com.planet.util.jdk8.ObjectSerializeUtil;
@@ -44,7 +45,7 @@ public class ShiroRedisSessionDao  extends AbstractSessionDAO {
         RMapCache<String, String> map = redissonClient.getMapCache("sessionManagerMap");
         try {
 //            bucket.trySet(ObjectSerializeUtil.objToSerialize(session), UtilsConstant.TTL_SESSION_MILLISECOND/1000, TimeUnit.SECONDS);
-            map.put(key,ObjectSerializeUtil.objToSerialize(session),UtilsConstant.TTL_SESSION_MILLISECOND/1000, TimeUnit.SECONDS);
+            map.put(key,ObjectSerializeUtil.objToSerialize(session), LocalCacheConstantService.getValue("redis:ttlSessionMillisecond",Long.class)/1000, TimeUnit.SECONDS);
             return sessionId;
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,7 +90,7 @@ public class ShiroRedisSessionDao  extends AbstractSessionDAO {
 //        RBucket<String> bucket = redissonClient.getBucket(key);
         RMapCache<String, String> map = redissonClient.getMapCache("sessionManagerMap");
         try {
-            map.put(key,ObjectSerializeUtil.objToSerialize(session),UtilsConstant.TTL_SESSION_MILLISECOND/1000, TimeUnit.SECONDS);
+            map.put(key,ObjectSerializeUtil.objToSerialize(session),LocalCacheConstantService.getValue("redis:ttlSessionMillisecond",Long.class)/1000, TimeUnit.SECONDS);
 //            bucket.set(ObjectSerializeUtil.objToSerialize(session), UtilsConstant.TTL_SESSION_MILLISECOND/1000, TimeUnit.SECONDS);
         } catch (IOException e) {
             e.printStackTrace();

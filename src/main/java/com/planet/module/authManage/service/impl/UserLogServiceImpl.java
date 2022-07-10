@@ -2,32 +2,20 @@ package com.planet.module.authManage.service.impl;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.read.builder.ExcelReaderBuilder;
-import com.alibaba.excel.read.builder.ExcelReaderSheetBuilder;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.planet.common.constant.ServiceConstant;
-import com.planet.common.util.RspResult;
-import com.planet.module.authManage.converter.easyExcelPlus.UserInfoExcelToPoConverter;
 import com.planet.module.authManage.converter.easyExcelPlus.UserLogExcelToPoConverter;
 import com.planet.module.authManage.dao.mysql.mapper.UserLogMapper;
-import com.planet.module.authManage.entity.excel.UserInfo;
 import com.planet.module.authManage.entity.mysql.UserLog;
 import com.planet.module.authManage.service.UserLogService;
 import com.planet.util.jdk8.mapAndEntityConvert.MapAndEntityConvertUtil;
 import com.planet.util.springBoot.WebUtil;
-import com.planetProvide.easyExcelPlus.core.baseDao.BaseDao;
-import com.planetProvide.easyExcelPlus.core.baseExcelImportValid.BaseExcelImportValid;
-import com.planetProvide.easyExcelPlus.core.baseReadListener.BaseRowReadListener;
-import com.planetProvide.easyExcelPlus.core.entity.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -73,6 +61,12 @@ public class UserLogServiceImpl extends ServiceImpl<UserLogMapper, UserLog> impl
             if("size".equals(key)||"current".equals(key)){
                 continue;
             }
+            if("key".equals(key)){
+                //标准模糊查询
+                //tQueryWrapper.like("name", name).or().like("lastname", name)
+                tQueryWrapper.like("name", stringObjectMap.get("key"));
+                continue;
+            }
             tQueryWrapper.eq(key,stringObjectMap.get(key));
         }
 
@@ -85,7 +79,7 @@ public class UserLogServiceImpl extends ServiceImpl<UserLogMapper, UserLog> impl
         HttpServletResponse response = WebUtil.getResponse();
         // 1.模板
         InputStream templateInputStream = this.getClass().getClassLoader().getResourceAsStream(
-                "templates/用户操作记录模块-模板.xlsx");
+                "templates/excel/modular/用户操作记录模块-模板.xlsx");
 
         // 2.目标文件
         String targetFile = "用户操作记录模块-记录.xlsx";

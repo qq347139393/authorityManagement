@@ -8,7 +8,7 @@ import com.planet.module.authManage.dao.mysql.mapper.UserInfoMapper;
 import com.planet.module.authManage.dao.redis.BaseMapper;
 import com.planet.module.authManage.entity.mysql.UserInfo;
 import com.planet.module.authManage.entity.redis.UserFunctionRs;
-import com.planet.module.authManage.service.authByShiro.UserShiroService;
+import com.planet.module.authManage.service.authByShiro.ShiroService;
 import com.planet.util.shiro.ShiroUtil;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -16,6 +16,8 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
+import org.redisson.api.RDeque;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -27,8 +29,10 @@ public class ShiroCustomRealm extends AuthorizingRealm {
     private UserInfoMapper userInfoMapper;
     @Autowired
     private BaseMapper baseMapper;
+//    @Autowired
+//    private ShiroService shiroService;
     @Autowired
-    private UserShiroService userShiroService;
+    private RedissonClient redissonClient;
 
 
     /**
@@ -103,7 +107,12 @@ public class ShiroCustomRealm extends AuthorizingRealm {
         String userInfoKey= UtilsConstant.REDIS_USER_ID_FOR_USER_INFO+userId;
         baseMapper.removeCache(userInfoKey);
         //2)清空userSession
-        userShiroService.deleteUserSessionByUserId(userId);
+//        shiroService.deleteUserSessionByUserId(userId);
+        //a1:从redis缓存中获取当前userId对应的user:sessionId队列
+        RDeque<String> deque = redissonClient.getDeque(UtilsConstant.USER_SESSION_ID  + userId);
+        //a2:删除当前userId对应的队列
+        deque.delete();
+
         //3)清空userRoles
         String userRolesKey=UtilsConstant.REDIS_USER_ID_FOR_ROLES_PERMITS+userId;
         baseMapper.removeCache(userRolesKey);
